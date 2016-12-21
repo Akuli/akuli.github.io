@@ -22,14 +22,16 @@
 
     Pathlib's paths behave like strings when they are printed.
 
-        >>> print(pathlib.Path("i look like a string"))
-        i look like a string
+    ```py
+    >>> print(pathlib.Path("i look like a string"))
+    i look like a string
+    ```
 
     Printing things is not the best possible way to debug, but it's still
-    a very common way. pathlib's paths define a custom __str__ that makes
+    a very common way. pathlib's paths define a custom `__str__` that makes
     them difficult to distinguish from regular Python strings when they
-    are printed. A to_string() method or an as_string property instead of
-    __str__ magic would make Path objects much easier to work with.
+    are printed. A `to_string()` method or an `as_string` property instead of
+    `__str__` magic would make Path objects much easier to work with.
 
 3. The zen says:
 
@@ -40,12 +42,14 @@
     divide things by numbers, not by strings! We might as well replace
     explicit methods by abusing operators everywhere else also. For
     example, if we can join paths by dividing, why not to join everything
-    by dividing? Instead of ','.join(things) we would do ','/things.
+    by dividing? Instead of `','.join(things)` we would do `',' / things`.
     That's readable, beatiful and explicit, right? No, it's not! Paths
     should be joined, not divided. We're talking about Python, not Perl.
 
-        >>> print(pathlib.Path('yet another pathlib hacker,'))
-        yet another pathlib hacker,
+    ```py
+    >>> print(pathlib.Path('Yet another pathlib hacker,'))
+    Yet another pathlib hacker,
+    ```
 
 4. The zen says:
 
@@ -55,15 +59,17 @@
     recommends against. It silences errors. Again, details like this can
     make debugging a real hell.
 
-        >>> import pathlib
-        >>> stuff = pathlib.Path('stuff')
-        >>> stuff
-        PosixPath('stuff')
-        >>> stuff.parent
-        PosixPath('.')
-        >>> stuff.parent.parent    # WTF?
-        PosixPath('.')
-        >>>
+    ```py
+    >>> import pathlib
+    >>> stuff = pathlib.Path('stuff')
+    >>> stuff
+    PosixPath('stuff')
+    >>> stuff.parent
+    PosixPath('.')
+    >>> stuff.parent.parent    # WTF?
+    PosixPath('.')
+    >>>
+    ```
 
 5. Pathlib fanboys say:
 
