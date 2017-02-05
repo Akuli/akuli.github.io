@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.iniloader &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for bananagui.iniloader</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016-2017 Akuli</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining</span>
+<span class="c1"># a copy of this software and associated documentation files (the</span>
+<span class="c1"># &quot;Software&quot;), to deal in the Software without restriction, including</span>
+<span class="c1"># without limitation the rights to use, copy, modify, merge, publish,</span>
+<span class="c1"># distribute, sublicense, and/or sell copies of the Software, and to</span>
+<span class="c1"># permit persons to whom the Software is furnished to do so, subject to</span>
+<span class="c1"># the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be</span>
+<span class="c1"># included in all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,</span>
+<span class="c1"># EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF</span>
+<span class="c1"># MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</span>
+<span class="c1"># IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY</span>
+<span class="c1"># CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,</span>
+<span class="c1"># TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE</span>
+<span class="c1"># SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+
+<span class="sd">&quot;&quot;&quot;A way to write GUI&#39;s using a simple, ini-like syntax.</span>
+
+<span class="sd">This is nice compared to writing the GUI in plain Python when writing</span>
+<span class="sd">it in Python would be repetitive.</span>
+
+<span class="sd">.. warning::</span>
+
+<span class="sd">   Don&#39;t use this module with untrusted input! The imports and </span>
+<span class="sd">   expressions are evaluated like any other Python code, so it&#39;s </span>
+<span class="sd">   possible to do basically anything in them. This module is meant to be </span>
+<span class="sd">   used when writing the GUI in plain Python would be tedious, *not* for </span>
+<span class="sd">   running GUI files that come from random places.</span>
+
+<span class="sd">With that out of the way, let&#39;s have a look at how this module is</span>
+<span class="sd">useful using this example GUI file:</span>
+
+<span class="sd">.. code-block:: none</span>
+
+<span class="sd">   # Hello World GUI for bananagui.iniloader.</span>
+<span class="sd">   from bananagui import widgets</span>
+
+<span class="sd">   [window]</span>
+<span class="sd">   class = widgets.Window</span>
+<span class="sd">   title = &quot;Hello&quot;</span>
+
+<span class="sd">   [label in window]</span>
+<span class="sd">   class = widgets.Label</span>
+<span class="sd">   text = &quot;Hello World!&quot;</span>
+
+<span class="sd">You can preview this file without loading it in Python manually:</span>
+
+<span class="sd">.. code-block:: none</span>
+
+<span class="sd">   $ iniloader preview the-gui-file.ini</span>
+
+<span class="sd">Or you can print a tree of the widgets you just created:</span>
+
+<span class="sd">.. code-block:: none</span>
+
+<span class="sd">   $ iniloader tree the-gui-file.ini</span>
+
+<span class="sd">See ``iniloader --help`` for more info. You can also use</span>
+<span class="sd">``yourpython -m bananagui.iniloader`` if the iniloader command doesn&#39;t </span>
+<span class="sd">work for some reason.</span>
+
+<span class="sd">The file is loaded like this:</span>
+
+<span class="sd">1. A new namespace dictionary is created for the module.</span>
+<span class="sd">2. The imports at the top are executed in this namespace. They need to</span>
+<span class="sd">   be at the top, and everything before the first section must be</span>
+<span class="sd">   imports. All import statements are fully supported, and the import</span>
+<span class="sd">   section ends to the first line starting with ``[``.</span>
+<span class="sd">3. Each section starts with ``[a header]`` and ends to the next header or</span>
+<span class="sd">   end of file, and the content of sections consists of ``key = value`` </span>
+<span class="sd">   pairs. Next the window section is parsed. It creates a</span>
+<span class="sd">   :class:`bananagui.widgets.Window` object and sets it to a variable </span>
+<span class="sd">   called window. The value of class will be used as constructor and </span>
+<span class="sd">   other arguments will be given to it as keyword arguments.</span>
+<span class="sd">4. The next section is otherwise similar, but the header is like</span>
+<span class="sd">   ``child in parent``. When the child widget has been created, the </span>
+<span class="sd">   child will be added into it. In this case, the parent is a </span>
+<span class="sd">   :class:`bananagui.widgets.Window` so ``window.add(label)`` is called.</span>
+<span class="sd">5. Imported modules are deleted from the namespace.</span>
+
+<span class="sd">In other words, the GUI file above does roughly the same thing as this</span>
+<span class="sd">Python code:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">   from bananagui import widgets</span>
+
+<span class="sd">   namespace = {}</span>
+<span class="sd">   namespace[&#39;window&#39;] = widgets.Window(title=&quot;Hello&quot;)</span>
+<span class="sd">   namespace[&#39;label&#39;] = widgets.Label(text=&quot;Hello World!&quot;)</span>
+<span class="sd">   namespace[&#39;window&#39;].add(namespace[&#39;label&#39;])</span>
+
+<span class="sd">The Python code is shorter than the GUI file above, so it doesn&#39;t really</span>
+<span class="sd">make sense to use the iniloader for small GUI&#39;s like this. It&#39;s more</span>
+<span class="sd">useful for big projects, because then the GUI can be in a separate file</span>
+<span class="sd">that is loaded from Python like this:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">   from bananagui import iniloader, load_wrapper, mainloop</span>
+
+<span class="sd">   load_wrapper(&#39;whatever you want&#39;)</span>
+<span class="sd">   with open(&#39;the-gui-file.ini&#39;, &#39;r&#39;) as f:</span>
+<span class="sd">       widgetdict = iniloader.load(f)</span>
+
+<span class="sd">   # Now widgetdict is the namespace dictionary.</span>
+<span class="sd">   widgetdict[&#39;window&#39;].on_close.connect(mainloop.quit)</span>
+<span class="sd">   mainloop.run()</span>
+
+<span class="sd">Section names and the keys in the sections must be valid variable names, </span>
+<span class="sd">except the ``class`` key that specifies the constructor. The values of </span>
+<span class="sd">the sections can be any Python expressions, including comments, function </span>
+<span class="sd">calls, list comprehensions and so on. They may refer to other variables </span>
+<span class="sd">and imported modules.</span>
+
+<span class="sd">It&#39;s also possible to use multiline values by indenting everything</span>
+<span class="sd">except the first line:</span>
+
+<span class="sd">.. code-block:: none</span>
+
+<span class="sd">   [multiline_label]</span>
+<span class="sd">   class = widgets.Label</span>
+<span class="sd">   text = (</span>
+<span class="sd">     &quot;Hello &quot;</span>
+<span class="sd">     &quot;multiline &quot;</span>
+<span class="sd">     &quot;world!&quot;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">keyword</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">bananagui</span> <span class="k">import</span> <span class="n">load_wrapper</span><span class="p">,</span> <span class="n">mainloop</span><span class="p">,</span> <span class="n">widgets</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;loads&#39;</span><span class="p">,</span> <span class="s1">&#39;ParsingError&#39;</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ParsingError"><a class="viewcode-back" href="../../iniloader.html#bananagui.iniloader.ParsingError">[docs]</a><span class="k">class</span> <span class="nc">ParsingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An error occurred while parsing.</span>
+
+<span class="sd">    This is not the only error that can be raised while parsing. This</span>
+<span class="sd">    error is typically raised if the non-Python syntax of the file is</span>
+<span class="sd">    invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lineno</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_repr</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># Calling super().__init__() is not needed. This is documented </span>
+        <span class="c1"># behavior, not a random implementation detail.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span> <span class="o">=</span> <span class="n">lineno</span>
+        <span class="k">if</span> <span class="n">line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">add_repr</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">file </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;, line </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="k">class</span> <span class="nc">_IniParser</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span> <span class="o">=</span> <span class="n">file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;unknown&gt;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">parse_imports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse import statements in the beginning of a file-like object.</span>
+
+<span class="sd">        The file&#39;s current seek position is left at the end of the</span>
+<span class="sd">        import statements. The imported modules are added to namespace</span>
+<span class="sd">        and the number of lines read is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">):</span>
+                <span class="c1"># Oops, we went a bit too far. Let&#39;s seek back.</span>
+                <span class="c1"># The problem with seeking text files is that we need</span>
+                <span class="c1"># the position in bytes, so we need to find out how many</span>
+                <span class="c1"># bytes the lines we read are in the file&#39;s encoding.</span>
+                <span class="c1"># Relative seeking with a negative value doesn&#39;t seem to</span>
+                <span class="c1"># work for some reason.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># e.g. StringIO</span>
+                    <span class="n">seekcount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">seekcount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">encoding</span><span class="p">))</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">seekcount</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">io</span><span class="o">.</span><span class="n">UnsupportedOperation</span><span class="p">:</span>
+                    <span class="c1"># We can&#39;t seek the file, it&#39;s probably sys.stdin.</span>
+                    <span class="c1"># We need to turn the whole thing into a StringIO.</span>
+                    <span class="n">fakefile</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+                    <span class="n">fakefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="p">,</span> <span class="n">fakefile</span><span class="p">)</span>
+                    <span class="n">fakefile</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file</span> <span class="o">=</span> <span class="n">fakefile</span>
+                <span class="k">break</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="c1"># Now we can parse the imports with ast.</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">Import</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">ImportFrom</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span>
+                    <span class="s2">&quot;the top of the ini file can only contain imports&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Importing based on ast.parse&#39;s return values turned out to be a</span>
+        <span class="c1"># lot of work to implement, so I&#39;m lazy and I&#39;ll use exec() after</span>
+        <span class="c1"># making sure there are nothing but imports there. The collections</span>
+        <span class="c1"># module is written by Raymond Hettinger and it uses exec() for</span>
+        <span class="c1"># creating namedtuple classes, so David Beazley thought that it</span>
+        <span class="c1"># can&#39;t be too bad and used exec().</span>
+        <span class="c1">#</span>
+        <span class="c1"># In other words, it&#39;s not an awful hack. It&#39;s metaprogramming!</span>
+        <span class="n">exec</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linenostart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the rest of the file after running parse_imports().</span>
+
+<span class="sd">        linenostart should be the return value from parse_imports().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We can&#39;t use inline_comment_prefixes or interpolation because</span>
+        <span class="c1"># they would collide with the values because they are Python</span>
+        <span class="c1"># expressions. We also need a default section name that can&#39;t</span>
+        <span class="c1"># collide with other section names, and a section name with a</span>
+        <span class="c1"># space does this well because section names need to be valid</span>
+        <span class="c1"># Python identifiers.</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">(</span>
+            <span class="n">default_section</span><span class="o">=</span><span class="s1">&#39;the default&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">delimiters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;=&#39;</span><span class="p">],</span> <span class="n">comment_prefixes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;#&#39;</span><span class="p">])</span>
+
+        <span class="c1"># configparser.MissingSectionHeaderError will never be raised</span>
+        <span class="c1"># because _parse_imports() searches for the beginning of the</span>
+        <span class="c1"># first section, so we don&#39;t need to handle that.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ParsingError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># We could edit the exception to correct its line numbers,</span>
+            <span class="c1"># but it&#39;s easier to just raise our own ParsingError.</span>
+            <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>    <span class="c1"># First error.</span>
+            <span class="n">lineno</span> <span class="o">+=</span> <span class="n">linenostart</span>
+            <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="c1"># Raising from None is new in Python 3.3.</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span><span class="s2">&quot;invalid ini syntax&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span>
+                               <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">add_repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="c1"># The sections method does not include the default section in</span>
+        <span class="c1"># its return value.</span>
+        <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_section</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">parser</span><span class="p">[</span><span class="n">header</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_check_varname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">must_exist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if a variable name is valid.</span>
+
+<span class="sd">        Raise ParsingError if the name is not valid. If must_exist is</span>
+<span class="sd">        True, also make sure the name is in the namespace. Other</span>
+<span class="sd">        arguments are passed to ParsingError.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">keyword</span><span class="o">.</span><span class="n">iskeyword</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span><span class="s2">&quot;invalid variable name </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">must_exist</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span><span class="s2">&quot;undefined variable </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+        <span class="n">real_header</span> <span class="o">=</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="n">header</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">widgetname</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">widgetname</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">real_header</span><span class="p">,</span>
+                                <span class="n">must_exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">parentname</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">widgetname</span><span class="p">,</span> <span class="n">in_</span><span class="p">,</span> <span class="n">parentname</span> <span class="o">=</span> <span class="n">parts</span>
+            <span class="k">if</span> <span class="n">in_</span> <span class="o">!=</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span>
+                    <span class="s2">&quot;the second word of 3-word headers must be &#39;in&#39;&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">real_header</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">widgetname</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">real_header</span><span class="p">,</span>
+                                <span class="n">must_exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">parentname</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">real_header</span><span class="p">)</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">[</span><span class="n">parentname</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span>
+                <span class="s2">&quot;headers can contain one or three words, not </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">real_header</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">valuesource</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;class&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">sourceline</span> <span class="o">=</span> <span class="n">valuesource</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">line</span><span class="o">=</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot; = &quot;</span> <span class="o">+</span> <span class="n">sourceline</span><span class="p">,</span>
+                                <span class="n">must_exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">valuesource</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+
+        <span class="n">class_source</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">class_source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParsingError</span><span class="p">(</span>
+                <span class="s2">&quot;the </span><span class="si">%s</span><span class="s2"> section doesn&#39;t define a class&quot;</span> <span class="o">%</span> <span class="n">real_header</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+        <span class="n">constructor</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">class_source</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">constructor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Bin</span><span class="p">):</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;don&#39;t know how to add a child to a </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2"> widget&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">[</span><span class="n">widgetname</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../iniloader.html#bananagui.iniloader.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Load a GUI from a file object.</span>
+
+<span class="sd">    This raises :exc:`~ParsingError` if the file has syntax problems, </span>
+<span class="sd">    but other errors may also be raised if something goes wrong with </span>
+<span class="sd">    importing, creating the widgets or something else.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">_IniParser</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">lineno</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_imports</span><span class="p">()</span>
+    <span class="c1"># Copy of keys, &#39;__builtins__&#39; is one of these.</span>
+    <span class="n">imported_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">parse_widgets</span><span class="p">(</span><span class="n">lineno</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">imported_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">namespace</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">parser</span><span class="o">.</span><span class="n">namespace</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">namespace</span></div>
+
+
+<div class="viewcode-block" id="loads"><a class="viewcode-back" href="../../iniloader.html#bananagui.iniloader.loads">[docs]</a><span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Like :func:`~load`, but takes a string instead of a file object.&quot;&quot;&quot;</span>
+    <span class="n">fakefile</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">fakefile</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&lt;string&gt;&#39;</span>  <span class="c1"># for error messages</span>
+    <span class="k">return</span> <span class="n">load</span><span class="p">(</span><span class="n">fakefile</span><span class="p">)</span></div>
+
+
+<span class="c1"># Simple command-line interface.</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../iniloader.html#bananagui.iniloader.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>     <span class="c1"># pragma: no cover</span>
+    <span class="sd">&quot;&quot;&quot;Run the command-line interface.</span>
+
+<span class="sd">    This uses :data:`sys.argv` and may use :func:`sys.exit`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">add_help</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">generalgroup</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;General options&quot;</span><span class="p">)</span>
+    <span class="n">generalgroup</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;help&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display this help message and exit.&quot;</span><span class="p">)</span>
+    <span class="n">generalgroup</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tree&#39;</span><span class="p">,</span> <span class="s1">&#39;preview&#39;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Choose what to do. &#39;tree&#39; dumps a tree of widgets in &quot;</span>
+              <span class="s2">&quot;INIFILE using bananagui.widgettree, and &#39;preview&#39; loads &quot;</span>
+              <span class="s2">&quot;and runs INIFILE.&quot;</span><span class="p">))</span>
+    <span class="n">generalgroup</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;inifile&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;INIFILE&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the BananaGUI ini file or - for stdin.&quot;</span><span class="p">)</span>
+
+    <span class="n">treegroup</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Tree options&quot;</span><span class="p">)</span>
+    <span class="n">treegroup</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;--ascii-only&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use ASCII characters only.&quot;</span><span class="p">)</span>
+    <span class="n">treegroup</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;--outfile&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Dump to this file instead of stdout.&quot;</span><span class="p">)</span>
+
+    <span class="n">previewgroup</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Preview options&quot;</span><span class="p">)</span>
+    <span class="n">previewgroup</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--wrapper&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;tkinter&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;The argument for bananagui.load_wrapper(). &quot;</span>
+              <span class="s2">&quot;Defaults to </span><span class="si">%(default)r</span><span class="s2">.&quot;</span><span class="p">))</span>
+
+    <span class="c1"># This isn&#39;t using subparsers because I want to display general options,</span>
+    <span class="c1"># tree options and preview options all in the same --help.</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;tree&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">wrapper</span> <span class="o">!=</span> <span class="s1">&#39;tkinter&#39;</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;cannot use -w/--wrapper with tree&quot;</span><span class="p">)</span>
+
+        <span class="c1"># I think a local import makes sense here because this way the</span>
+        <span class="c1"># iniloader can be used even if widgettree doesn&#39;t work for some</span>
+        <span class="c1"># reason.</span>
+        <span class="kn">from</span> <span class="nn">bananagui</span> <span class="k">import</span> <span class="n">widgettree</span>
+        <span class="n">load_wrapper</span><span class="p">(</span><span class="s1">&#39;dummy&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">args</span><span class="o">.</span><span class="n">inifile</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">windows</span> <span class="o">=</span> <span class="p">{</span><span class="n">widget</span> <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                       <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Window</span><span class="p">)}</span>
+        <span class="k">with</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+                <span class="n">widgettree</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ascii_only</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ascii_only</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;preview&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ascii_only</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;cannot use -a/--ascii-only with preview&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;cannot use -o/--outfile with preview&quot;</span><span class="p">)</span>
+
+        <span class="n">load_wrapper</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">wrapper</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">args</span><span class="o">.</span><span class="n">inifile</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">windows</span> <span class="o">=</span> <span class="p">{</span><span class="n">widget</span> <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                       <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Window</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>
+            <span class="c1"># It&#39;s important not to say &quot;this needs windows&quot; to avoid</span>
+            <span class="c1"># confusion with Windows the operating system.</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;iniloader: no Window objects were found in </span><span class="si">%s</span><span class="s2">&quot;</span>
+                  <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">inifile</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">do_close</span><span class="p">(</span><span class="n">window</span><span class="p">):</span>
+            <span class="n">windows</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>
+                <span class="n">mainloop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+            <span class="n">window</span><span class="o">.</span><span class="n">on_close</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">do_close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+        <span class="n">mainloop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../bananagui.html">bananagui</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.widgets &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for bananagui.widgets</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016-2017 Akuli</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining</span>
+<span class="c1"># a copy of this software and associated documentation files (the</span>
+<span class="c1"># &quot;Software&quot;), to deal in the Software without restriction, including</span>
+<span class="c1"># without limitation the rights to use, copy, modify, merge, publish,</span>
+<span class="c1"># distribute, sublicense, and/or sell copies of the Software, and to</span>
+<span class="c1"># permit persons to whom the Software is furnished to do so, subject to</span>
+<span class="c1"># the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be</span>
+<span class="c1"># included in all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,</span>
+<span class="c1"># EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF</span>
+<span class="c1"># MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</span>
+<span class="c1"># IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY</span>
+<span class="c1"># CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,</span>
+<span class="c1"># TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE</span>
+<span class="c1"># SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+
+<span class="c1"># flake8: noqa</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains BananaGUI&#39;s widget classes.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_fix_modulenames</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Make classes and functions seem like they come from here.</span>
+
+<span class="sd">    Return an __all__ list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+            <span class="n">value</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">=</span> <span class="vm">__name__</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="kn">from</span> <span class="nn">.basewidgets</span> <span class="k">import</span> <span class="n">Widget</span><span class="p">,</span> <span class="n">Child</span>
+<span class="kn">from</span> <span class="nn">.buttons</span> <span class="k">import</span> <span class="n">Button</span><span class="p">,</span> <span class="n">ImageButton</span>
+<span class="kn">from</span> <span class="nn">.labels</span> <span class="k">import</span> <span class="n">Label</span><span class="p">,</span> <span class="n">ImageLabel</span>
+<span class="kn">from</span> <span class="nn">.misc</span> <span class="k">import</span> <span class="n">Checkbox</span><span class="p">,</span> <span class="n">Dummy</span><span class="p">,</span> <span class="n">Separator</span>
+<span class="kn">from</span> <span class="nn">.parents</span> <span class="k">import</span> <span class="n">Parent</span><span class="p">,</span> <span class="n">Bin</span><span class="p">,</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Scroller</span><span class="p">,</span> <span class="n">Group</span>
+<span class="kn">from</span> <span class="nn">.progress</span> <span class="k">import</span> <span class="n">Progressbar</span><span class="p">,</span> <span class="n">BouncingProgressbar</span><span class="p">,</span> <span class="n">Spinner</span>
+<span class="kn">from</span> <span class="nn">.ranged</span> <span class="k">import</span> <span class="n">Slider</span><span class="p">,</span> <span class="n">Spinbox</span>
+<span class="kn">from</span> <span class="nn">.textwidgets</span> <span class="k">import</span> <span class="n">TextBase</span><span class="p">,</span> <span class="n">Entry</span><span class="p">,</span> <span class="n">TextEdit</span>
+<span class="c1">#from .trayicon import TrayIcon</span>
+<span class="kn">from</span> <span class="nn">.window</span> <span class="k">import</span> <span class="n">Window</span><span class="p">,</span> <span class="n">Dialog</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="n">_fix_modulenames</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../bananagui.html">bananagui</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

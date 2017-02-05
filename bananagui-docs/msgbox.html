@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.msgbox - handy dialogs &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bananagui.widgets - the widget classes" href="widgets.html" />
+    <link rel="prev" title="bananagui.mainloop - control the GUI toolkit’s main loop" href="mainloop.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bananagui.msgbox">
+<span id="bananagui-msgbox-handy-dialogs"></span><h1>bananagui.msgbox - handy dialogs<a class="headerlink" href="#module-bananagui.msgbox" title="Permalink to this headline">¶</a></h1>
+<p>Handy dialog functions.</p>
+<p>All public functions in this module take these arguments:</p>
+<ul class="simple">
+<li><em>parentwindow:</em> A <a class="reference internal" href="widgets.html#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">bananagui.widgets.Window</span></code></a> object. Usually 
+the dialog will be centered on this window.</li>
+<li><em>title:</em> The title of the dialog, defaults to <em>parentwindow</em>&#8216;s
+title.</li>
+</ul>
+<p>The <a class="reference internal" href="#bananagui.msgbox.info" title="bananagui.msgbox.info"><code class="xref py py-func docutils literal"><span class="pre">info()</span></code></a>, <a class="reference internal" href="#bananagui.msgbox.warning" title="bananagui.msgbox.warning"><code class="xref py py-func docutils literal"><span class="pre">warning()</span></code></a>, <a class="reference internal" href="#bananagui.msgbox.error" title="bananagui.msgbox.error"><code class="xref py py-func docutils literal"><span class="pre">error()</span></code></a> and 
+<a class="reference internal" href="#bananagui.msgbox.question" title="bananagui.msgbox.question"><code class="xref py py-func docutils literal"><span class="pre">question()</span></code></a> functions also take these arguments:</p>
+<ul class="simple">
+<li><em>buttons:</em> This should be an iterable of button texts that will be
+added to the dialog. BananaGUI may need to iterate over this multiple
+times, so I don&#8217;t recommend using an iterator for this.</li>
+<li><em>defaultbutton:</em> This should be a string in <em>buttons</em>. The default
+button will have keyboard focus by default.</li>
+<li><em>text:</em> This is the text that will be shown in the dialog.</li>
+<li><em>title:</em> The title of the dialog, defaults to the parentwindow&#8217;s title.</li>
+</ul>
+<p>The functions return whatever the user chooses or None if the dialog is 
+closed. For example, <a class="reference internal" href="#bananagui.msgbox.info" title="bananagui.msgbox.info"><code class="xref py py-func docutils literal"><span class="pre">info()</span></code></a>, <a class="reference internal" href="#bananagui.msgbox.warning" title="bananagui.msgbox.warning"><code class="xref py py-func docutils literal"><span class="pre">warning()</span></code></a>, <a class="reference internal" href="#bananagui.msgbox.error" title="bananagui.msgbox.error"><code class="xref py py-func docutils literal"><span class="pre">error()</span></code></a> and
+<a class="reference internal" href="#bananagui.msgbox.question" title="bananagui.msgbox.question"><code class="xref py py-func docutils literal"><span class="pre">question()</span></code></a> return the text of the clicked button or None.</p>
+<dl class="function">
+<dt id="bananagui.msgbox.info">
+<code class="descclassname">bananagui.msgbox.</code><code class="descname">info</code><span class="sig-paren">(</span><em>parentwindow</em>, <em>message</em>, <em>buttons</em>, <em>*</em>, <em>title=None</em>, <em>defaultbutton=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/msgbox.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.msgbox.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display an information message.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.msgbox.warning">
+<code class="descclassname">bananagui.msgbox.</code><code class="descname">warning</code><span class="sig-paren">(</span><em>parentwindow</em>, <em>message</em>, <em>buttons</em>, <em>*</em>, <em>title=None</em>, <em>defaultbutton=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/msgbox.html#warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.msgbox.warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a warning message.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.msgbox.error">
+<code class="descclassname">bananagui.msgbox.</code><code class="descname">error</code><span class="sig-paren">(</span><em>parentwindow</em>, <em>message</em>, <em>buttons</em>, <em>*</em>, <em>title=None</em>, <em>defaultbutton=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/msgbox.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.msgbox.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display an error message.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.msgbox.question">
+<code class="descclassname">bananagui.msgbox.</code><code class="descname">question</code><span class="sig-paren">(</span><em>parentwindow</em>, <em>message</em>, <em>buttons</em>, <em>*</em>, <em>title=None</em>, <em>defaultbutton=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/msgbox.html#question"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.msgbox.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a question message.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.msgbox.colordialog">
+<code class="descclassname">bananagui.msgbox.</code><code class="descname">colordialog</code><span class="sig-paren">(</span><em>parentwindow</em>, <em>*</em>, <em>title=None</em>, <em>defaultcolor='#000000'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/msgbox.html#colordialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.msgbox.colordialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask a color from the user.</p>
+<p>This returns the new color, or None if the user canceled the dialog.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="mainloop.html" title="previous chapter">bananagui.mainloop - control the GUI toolkit&#8217;s main loop</a></li>
+      <li>Next: <a href="widgets.html" title="next chapter">bananagui.widgets - the widget classes</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/msgbox.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/msgbox.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

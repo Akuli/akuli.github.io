@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.iniloader - an easier way to write large GUI’s &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bananagui.mainloop - control the GUI toolkit’s main loop" href="mainloop.html" />
+    <link rel="prev" title="bananagui.images - the Image class" href="images.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bananagui.iniloader">
+<span id="bananagui-iniloader-an-easier-way-to-write-large-gui-s"></span><h1>bananagui.iniloader - an easier way to write large GUI&#8217;s<a class="headerlink" href="#module-bananagui.iniloader" title="Permalink to this headline">¶</a></h1>
+<p>A way to write GUI&#8217;s using a simple, ini-like syntax.</p>
+<p>This is nice compared to writing the GUI in plain Python when writing
+it in Python would be repetitive.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Don&#8217;t use this module with untrusted input! The imports and 
+expressions are evaluated like any other Python code, so it&#8217;s 
+possible to do basically anything in them. This module is meant to be 
+used when writing the GUI in plain Python would be tedious, <em>not</em> for 
+running GUI files that come from random places.</p>
+</div>
+<p>With that out of the way, let&#8217;s have a look at how this module is
+useful using this example GUI file:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span># Hello World GUI for bananagui.iniloader.
+from bananagui import widgets
+
+[window]
+class = widgets.Window
+title = &quot;Hello&quot;
+
+[label in window]
+class = widgets.Label
+text = &quot;Hello World!&quot;
+</pre></div>
+</div>
+<p>You can preview this file without loading it in Python manually:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ iniloader preview the-gui-file.ini
+</pre></div>
+</div>
+<p>Or you can print a tree of the widgets you just created:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ iniloader tree the-gui-file.ini
+</pre></div>
+</div>
+<p>See <code class="docutils literal"><span class="pre">iniloader</span> <span class="pre">--help</span></code> for more info. You can also use
+<code class="docutils literal"><span class="pre">yourpython</span> <span class="pre">-m</span> <span class="pre">bananagui.iniloader</span></code> if the iniloader command doesn&#8217;t 
+work for some reason.</p>
+<p>The file is loaded like this:</p>
+<ol class="arabic simple">
+<li>A new namespace dictionary is created for the module.</li>
+<li>The imports at the top are executed in this namespace. They need to
+be at the top, and everything before the first section must be
+imports. All import statements are fully supported, and the import
+section ends to the first line starting with <code class="docutils literal"><span class="pre">[</span></code>.</li>
+<li>Each section starts with <code class="docutils literal"><span class="pre">[a</span> <span class="pre">header]</span></code> and ends to the next header or
+end of file, and the content of sections consists of <code class="docutils literal"><span class="pre">key</span> <span class="pre">=</span> <span class="pre">value</span></code> 
+pairs. Next the window section is parsed. It creates a
+<a class="reference internal" href="widgets.html#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">bananagui.widgets.Window</span></code></a> object and sets it to a variable 
+called window. The value of class will be used as constructor and 
+other arguments will be given to it as keyword arguments.</li>
+<li>The next section is otherwise similar, but the header is like
+<code class="docutils literal"><span class="pre">child</span> <span class="pre">in</span> <span class="pre">parent</span></code>. When the child widget has been created, the 
+child will be added into it. In this case, the parent is a 
+<a class="reference internal" href="widgets.html#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">bananagui.widgets.Window</span></code></a> so <code class="docutils literal"><span class="pre">window.add(label)</span></code> is called.</li>
+<li>Imported modules are deleted from the namespace.</li>
+</ol>
+<p>In other words, the GUI file above does roughly the same thing as this
+Python code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bananagui</span> <span class="kn">import</span> <span class="n">widgets</span>
+
+<span class="n">namespace</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;window&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Window</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+<span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
+<span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;window&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The Python code is shorter than the GUI file above, so it doesn&#8217;t really
+make sense to use the iniloader for small GUI&#8217;s like this. It&#8217;s more
+useful for big projects, because then the GUI can be in a separate file
+that is loaded from Python like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bananagui</span> <span class="kn">import</span> <span class="n">iniloader</span><span class="p">,</span> <span class="n">load_wrapper</span><span class="p">,</span> <span class="n">mainloop</span>
+
+<span class="n">load_wrapper</span><span class="p">(</span><span class="s1">&#39;whatever you want&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;the-gui-file.ini&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">widgetdict</span> <span class="o">=</span> <span class="n">iniloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># Now widgetdict is the namespace dictionary.</span>
+<span class="n">widgetdict</span><span class="p">[</span><span class="s1">&#39;window&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">on_close</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">mainloop</span><span class="o">.</span><span class="n">quit</span><span class="p">)</span>
+<span class="n">mainloop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Section names and the keys in the sections must be valid variable names, 
+except the <code class="docutils literal"><span class="pre">class</span></code> key that specifies the constructor. The values of 
+the sections can be any Python expressions, including comments, function 
+calls, list comprehensions and so on. They may refer to other variables 
+and imported modules.</p>
+<p>It&#8217;s also possible to use multiline values by indenting everything
+except the first line:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>[multiline_label]
+class = widgets.Label
+text = (
+  &quot;Hello &quot;
+  &quot;multiline &quot;
+  &quot;world!&quot;)
+</pre></div>
+</div>
+<dl class="function">
+<dt id="bananagui.iniloader.load">
+<code class="descclassname">bananagui.iniloader.</code><code class="descname">load</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span> &rarr; dict<a class="reference internal" href="_modules/bananagui/iniloader.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.iniloader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a GUI from a file object.</p>
+<p>This raises <a class="reference internal" href="#bananagui.iniloader.ParsingError" title="bananagui.iniloader.ParsingError"><code class="xref py py-exc docutils literal"><span class="pre">ParsingError</span></code></a> if the file has syntax problems, 
+but other errors may also be raised if something goes wrong with 
+importing, creating the widgets or something else.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.iniloader.loads">
+<code class="descclassname">bananagui.iniloader.</code><code class="descname">loads</code><span class="sig-paren">(</span><em>string: str</em><span class="sig-paren">)</span> &rarr; dict<a class="reference internal" href="_modules/bananagui/iniloader.html#loads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.iniloader.loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <a class="reference internal" href="#bananagui.iniloader.load" title="bananagui.iniloader.load"><code class="xref py py-func docutils literal"><span class="pre">load()</span></code></a>, but takes a string instead of a file object.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bananagui.iniloader.ParsingError">
+<em class="property">exception </em><code class="descclassname">bananagui.iniloader.</code><code class="descname">ParsingError</code><span class="sig-paren">(</span><em>message</em>, <em>filename=None</em>, <em>lineno=None</em>, <em>line=None</em>, <em>*</em>, <em>add_repr=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/iniloader.html#ParsingError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.iniloader.ParsingError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An error occurred while parsing.</p>
+<p>This is not the only error that can be raised while parsing. This
+error is typically raised if the non-Python syntax of the file is
+invalid.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.iniloader.main">
+<code class="descclassname">bananagui.iniloader.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/iniloader.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.iniloader.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the command-line interface.</p>
+<p>This uses <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.6)"><code class="xref py py-data docutils literal"><span class="pre">sys.argv</span></code></a> and may use <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.6)"><code class="xref py py-func docutils literal"><span class="pre">sys.exit()</span></code></a>.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="images.html" title="previous chapter">bananagui.images - the Image class</a></li>
+      <li>Next: <a href="mainloop.html" title="next chapter">bananagui.mainloop - control the GUI toolkit&#8217;s main loop</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/iniloader.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/iniloader.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.widgets.basewidgets &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for bananagui.widgets.basewidgets</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016-2017 Akuli</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining</span>
+<span class="c1"># a copy of this software and associated documentation files (the</span>
+<span class="c1"># &quot;Software&quot;), to deal in the Software without restriction, including</span>
+<span class="c1"># without limitation the rights to use, copy, modify, merge, publish,</span>
+<span class="c1"># distribute, sublicense, and/or sell copies of the Software, and to</span>
+<span class="c1"># permit persons to whom the Software is furnished to do so, subject to</span>
+<span class="c1"># the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be</span>
+<span class="c1"># included in all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,</span>
+<span class="c1"># EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF</span>
+<span class="c1"># MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</span>
+<span class="c1"># IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY</span>
+<span class="c1"># CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,</span>
+<span class="c1"># TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE</span>
+<span class="c1"># SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+
+<span class="kn">from</span> <span class="nn">bananagui</span> <span class="k">import</span> <span class="n">mainloop</span><span class="p">,</span> <span class="n">types</span>
+
+
+<span class="k">class</span> <span class="nc">Widget</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A baseclass for all widgets.</span>
+
+<span class="sd">    All widgets inherit from this class, so all widgets have the methods </span>
+<span class="sd">    that this class has.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">can_focus</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># This is in __new__ because it runs before __init__.</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mainloop</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot create widgets without initializing &quot;</span>
+                             <span class="s2">&quot;the main loop&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Widget</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the widget.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_wrapper&#39;</span><span class="p">):</span>
+            <span class="c1"># A subclass didn&#39;t override this and define a _wrapper.</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;cannot create instances of </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2"> directly, &quot;</span>
+                            <span class="s2">&quot;instantiate a subclass instead&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1"> object&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repr_parts</span><span class="p">():</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;, &#39;</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">part</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">result</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_repr_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an empty list to make super() usage easier.</span>
+
+<span class="sd">        The __repr__ value is constructed from the module and name of</span>
+<span class="sd">        the class, and the return value of _repr_parts. This method</span>
+<span class="sd">        should return a list of things that will be joined with a comma</span>
+<span class="sd">        to create the __repr__.</span>
+
+<span class="sd">        It&#39;s recommended to do something like this in _repr_parts:</span>
+
+<span class="sd">            def _repr_parts(self):</span>
+<span class="sd">                return [&#39;thing=stuff&#39;] + super()._repr_parts()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is the real GUI toolkit&#39;s widget that BananaGUI uses.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrapper</span><span class="o">.</span><span class="n">widget</span>
+
+<div class="viewcode-block" id="Widget.focus"><a class="viewcode-back" href="../../../widgets.html#bananagui.widgets.Widget.focus">[docs]</a>    <span class="k">def</span> <span class="nf">focus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Give the keyboard focus to this widget.</span>
+
+<span class="sd">        Widget classes have a ``can_focus`` attribute, and this method</span>
+<span class="sd">        cannot be called if it&#39;s False.</span>
+
+<span class="sd">        Focusing a :class:`.Window` or :class:`.Dialog` brings it in</span>
+<span class="sd">        front of all other windows. When focusing something else it&#39;s</span>
+<span class="sd">        recommended to first create the widgets and then focus one of</span>
+<span class="sd">        them to make sure that the widget gets focused correctly with</span>
+<span class="sd">        all GUI toolkits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">can_focus</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;cannot focus </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2"> widgets&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wrapper</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span></div>
+
+
+<span class="nd">@types</span><span class="o">.</span><span class="n">add_property</span><span class="p">(</span>
+    <span class="s1">&#39;tooltip&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;The widget&#39;s tooltip text or None for no tooltip.</span>
+
+<span class="s2">    None by default.</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="nd">@types</span><span class="o">.</span><span class="n">add_property</span><span class="p">(</span>
+    <span class="s1">&#39;grayed_out&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;True if the widget looks like it&#39;s disabled.</span>
+
+<span class="s2">    This can be used to tell the user that the widget can&#39;t be used for</span>
+<span class="s2">    some reason.</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="nd">@types</span><span class="o">.</span><span class="n">add_property</span><span class="p">(</span>
+    <span class="s1">&#39;expand&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span> <span class="n">how_many</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Two-tuple of horizontal and vertical expanding.</span>
+
+<span class="s2">    This is ``(True, True)`` by default, so the widget expands in both</span>
+<span class="s2">    directions.</span>
+
+<span class="s2">    When multiple widgets are next to each other in a layout widget, at </span>
+<span class="s2">    least one of them should expand in the layout widget&#39;s direction. </span>
+<span class="s2">    Like this:</span>
+
+<span class="s2">    .. code-block:: none</span>
+
+<span class="s2">       ,------------------------------------------------.</span>
+<span class="s2">       |   non-   |                                     |</span>
+<span class="s2">       |expanding |           expanding widget          |</span>
+<span class="s2">       |  widget  |                                     |</span>
+<span class="s2">       `------------------------------------------------&#39;</span>
+
+<span class="s2">    Not like this:</span>
+
+<span class="s2">    .. code-block:: none</span>
+
+<span class="s2">       ,------------------------------------------------.</span>
+<span class="s2">       |   non-   |   non-   |                          |</span>
+<span class="s2">       |expanding |expanding |       empty space        |</span>
+<span class="s2">       |  widget  |  widget  |                          |</span>
+<span class="s2">       `------------------------------------------------&#39;</span>
+
+<span class="s2">    This way the children will behave consistently with all GUI </span>
+<span class="s2">    toolkits. You can use a :class:`.Dummy` widget to fill the empty </span>
+<span class="s2">    space if needed:</span>
+
+<span class="s2">    .. code-block:: none</span>
+
+<span class="s2">       ,------------------------------------------------.</span>
+<span class="s2">       |   non-   |   non-   |                          |</span>
+<span class="s2">       |expanding |expanding |       Dummy widget       |</span>
+<span class="s2">       |  widget  |  widget  |                          |</span>
+<span class="s2">       `------------------------------------------------&#39;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Widget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for widgets that can be added to :class:`.Parent` widgets.</span>
+
+<span class="sd">    BananaGUI keeps track of the parent internally. When a child is</span>
+<span class="sd">    added to a parent widget, BananaGUI remembers it. The child can be</span>
+<span class="sd">    removed from the parent widget and added into it again, but it</span>
+<span class="sd">    cannot be added to other parent widgets. For example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       box1 = widgets.Box()</span>
+<span class="sd">       box2 = widgets.Box()</span>
+<span class="sd">       label = widgets.Label()     # label doesn&#39;t have a parent</span>
+<span class="sd">       box1.append(label)          # label&#39;s parent is now box1</span>
+<span class="sd">       box1.remove(label)          # label&#39;s parent is still box1</span>
+<span class="sd">       box2.append(label)          # this raises an exception!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: cycle handling</span>
+    <span class="c1">#   box1 = widgets.Box()</span>
+    <span class="c1">#   box2 = widgets.Box()</span>
+    <span class="c1">#   box1.append(box2)</span>
+    <span class="c1">#   box2.append(box1)   # raise an error with a descriptive message here</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grayed_out</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Set arguments as attributes.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># Other files rely on this also.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prop_tooltip</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prop_grayed_out</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prop_expand</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tooltip</span> <span class="o">=</span> <span class="n">tooltip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grayed_out</span> <span class="o">=</span> <span class="n">grayed_out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expand</span> <span class="o">=</span> <span class="n">expand</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../bananagui.html">bananagui</a><ul>
+  <li><a href="../widgets.html">bananagui.widgets</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

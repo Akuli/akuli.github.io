@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.mainloop - control the GUI toolkit’s main loop &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bananagui.msgbox - handy dialogs" href="msgbox.html" />
+    <link rel="prev" title="bananagui.iniloader - an easier way to write large GUI’s" href="iniloader.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bananagui.mainloop">
+<span id="bananagui-mainloop-control-the-gui-toolkit-s-main-loop"></span><h1>bananagui.mainloop - control the GUI toolkit&#8217;s main loop<a class="headerlink" href="#module-bananagui.mainloop" title="Permalink to this headline">¶</a></h1>
+<p>This module provides access to the GUI toolkit&#8217;s mainloop.</p>
+<p>The mainloop can be in three different states:</p>
+<ul class="simple">
+<li><strong>Not initialized:</strong> The mainloop is doing nothing, and it&#8217;s not ready 
+to run. This is the current state when this module has just been 
+imported for the first time.</li>
+<li><strong>Initialized:</strong> Now the mainloop is ready to run, but it&#8217;s not running
+yet. Widgets can be created and timeouts can be added, but the 
+timeouts aren&#8217;t guaranteed to run and the widgets aren&#8217;t guaranteed to 
+be visible yet. Typically the mainloop is in this state for a short 
+time while the widgets are being created.</li>
+<li><strong>Running:</strong> Now the mainloop is running. Widgets are visible and
+timeouts run. New widgets can be still made and new timeouts can be
+added. Applications are in this state most of the time.</li>
+</ul>
+<p>Different functions in this module can be used for going from one state
+to another:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-----------------.  init()  ,-------------.
+| not initialized | -------&gt; | initialized |
+`-----------------&#39;          `-------------&#39;
+        /|\                         |
+         |               quit()     | call run()
+         |                  \       V
+         |                   \ ,---------.
+         `-------------------- | running |
+                               `---------&#39;
+                               \____ ____/
+                                    V
+                                the run()
+                                function
+                               is running
+</pre></div>
+</div>
+<p>Note that <a class="reference internal" href="bananagui.html#bananagui.load_wrapper" title="bananagui.load_wrapper"><code class="xref py py-func docutils literal"><span class="pre">bananagui.load_wrapper()</span></code></a> will call <a class="reference internal" href="#bananagui.mainloop.init" title="bananagui.mainloop.init"><code class="xref py py-func docutils literal"><span class="pre">init()</span></code></a> by 
+default and most applications don&#8217;t run the mainloop more than once, so 
+usually you don&#8217;t need to worry about the &#8220;Not initialized&#8221; state.</p>
+<dl class="function">
+<dt id="bananagui.mainloop.init">
+<code class="descclassname">bananagui.mainloop.</code><code class="descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/mainloop.html#init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.mainloop.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the mainloop.</p>
+<p>Note that <a class="reference internal" href="bananagui.html#bananagui.load_wrapper" title="bananagui.load_wrapper"><code class="xref py py-func docutils literal"><span class="pre">bananagui.load_wrapper()</span></code></a> runs this by default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.mainloop.run">
+<code class="descclassname">bananagui.mainloop.</code><code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/mainloop.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.mainloop.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the mainloop until <a class="reference internal" href="#bananagui.mainloop.quit" title="bananagui.mainloop.quit"><code class="xref py py-func docutils literal"><span class="pre">quit()</span></code></a> is called.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.mainloop.quit">
+<code class="descclassname">bananagui.mainloop.</code><code class="descname">quit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/mainloop.html#quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.mainloop.quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make <a class="reference internal" href="#bananagui.mainloop.run" title="bananagui.mainloop.run"><code class="xref py py-func docutils literal"><span class="pre">run()</span></code></a> return.</p>
+<p>Quitting when the main loop is not running does nothing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.mainloop.add_timeout">
+<code class="descclassname">bananagui.mainloop.</code><code class="descname">add_timeout</code><span class="sig-paren">(</span><em>seconds</em>, <em>callback</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/mainloop.html#add_timeout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.mainloop.add_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run <code class="docutils literal"><span class="pre">callback(*args)</span></code> after waiting.</p>
+<p>If the function returns <a class="reference internal" href="bananagui.html#bananagui.RUN_AGAIN" title="bananagui.RUN_AGAIN"><code class="xref py py-data docutils literal"><span class="pre">bananagui.RUN_AGAIN</span></code></a> it will be 
+called again after waiting again. Depending on the GUI toolkit, this 
+may or may not work when the main loop is not running.</p>
+<p>The waiting time is not guaranteed to be exact, but it&#8217;s good enough 
+for most purposes. Use something like <a class="reference external" href="https://docs.python.org/3/library/time.html#time.time" title="(in Python v3.6)"><code class="xref py py-func docutils literal"><span class="pre">time.time()</span></code></a> if you need 
+to measure time in the callback function.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="iniloader.html" title="previous chapter">bananagui.iniloader - an easier way to write large GUI&#8217;s</a></li>
+      <li>Next: <a href="msgbox.html" title="next chapter">bananagui.msgbox - handy dialogs</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mainloop.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/mainloop.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

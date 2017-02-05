@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.color - color constants and handy functions &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bananagui.font - font-related functions" href="font.html" />
+    <link rel="prev" title="bananagui.clipboard - copy/pasting related functions" href="clipboard.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="bananagui-color-color-constants-and-handy-functions">
+<h1>bananagui.color - color constants and handy functions<a class="headerlink" href="#bananagui-color-color-constants-and-handy-functions" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-bananagui.color"></span><p>This module contains handy color constants and converting functions.</p>
+<p>BananaGUI uses case-insensitive 7-character hexadecimal colors, like 
+<code class="docutils literal"><span class="pre">'#ffffff'</span></code> or <code class="docutils literal"><span class="pre">'#fFfFff'</span></code>. If you&#8217;re not familiar with hexadecimal 
+colors you probably can&#8217;t guess what <code class="docutils literal"><span class="pre">'#ff0000'</span></code> and <code class="docutils literal"><span class="pre">'#00ff00'</span></code> 
+are. This module allows you to use <code class="docutils literal"><span class="pre">bananagui.Color.RED</span></code> and 
+<code class="docutils literal"><span class="pre">bananagui.Color.GREEN</span></code> instead.</p>
+<p>Here&#8217;s a full list of the color constants:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>BLACK</td>
+<td><code class="docutils literal"><span class="pre">'#000000'</span></code></td>
+</tr>
+<tr class="row-odd"><td>BLUE</td>
+<td><code class="docutils literal"><span class="pre">'#0000ff'</span></code></td>
+</tr>
+<tr class="row-even"><td>BROWN</td>
+<td><code class="docutils literal"><span class="pre">'#996600'</span></code></td>
+</tr>
+<tr class="row-odd"><td>CYAN</td>
+<td><code class="docutils literal"><span class="pre">'#00ffff'</span></code></td>
+</tr>
+<tr class="row-even"><td>GRAY</td>
+<td><code class="docutils literal"><span class="pre">'#7f7f7f'</span></code></td>
+</tr>
+<tr class="row-odd"><td>GREEN</td>
+<td><code class="docutils literal"><span class="pre">'#00ff00'</span></code></td>
+</tr>
+<tr class="row-even"><td>ORANGE</td>
+<td><code class="docutils literal"><span class="pre">'#ff7f00'</span></code></td>
+</tr>
+<tr class="row-odd"><td>PINK</td>
+<td><code class="docutils literal"><span class="pre">'#ff00ff'</span></code></td>
+</tr>
+<tr class="row-even"><td>RED</td>
+<td><code class="docutils literal"><span class="pre">'#ff0000'</span></code></td>
+</tr>
+<tr class="row-odd"><td>WHITE</td>
+<td><code class="docutils literal"><span class="pre">'#ffffff'</span></code></td>
+</tr>
+<tr class="row-even"><td>YELLOW</td>
+<td><code class="docutils literal"><span class="pre">'#ffff00'</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>Rest of this module contains functions for converting colors and 
+processing hexadecimal colors.</p>
+<dl class="function">
+<dt id="bananagui.color.rgb2hex">
+<code class="descclassname">bananagui.color.</code><code class="descname">rgb2hex</code><span class="sig-paren">(</span><em>rgb</em><span class="sig-paren">)</span> &rarr; str<a class="reference internal" href="_modules/bananagui/color.html#rgb2hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.color.rgb2hex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an RGB sequence to a hexadecimal color.</p>
+<p>The values of the sequence need to be in <code class="docutils literal"><span class="pre">range(256)</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rgb2hex</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">])</span>
+<span class="go">&#39;#00ffff&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.color.hex2rgb">
+<code class="descclassname">bananagui.color.</code><code class="descname">hex2rgb</code><span class="sig-paren">(</span><em>hexcolor: str</em><span class="sig-paren">)</span> &rarr; tuple<a class="reference internal" href="_modules/bananagui/color.html#hex2rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.color.hex2rgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a hexadecimal color to an RGB tuple.</p>
+<p>The returned values are always integers in <code class="docutils literal"><span class="pre">range(256)</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hex2rgb</span><span class="p">(</span><span class="s1">&#39;#00ffff&#39;</span><span class="p">)</span>
+<span class="go">(0, 255, 255)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hex2rgb</span><span class="p">(</span><span class="s1">&#39;#0ff&#39;</span><span class="p">)</span>
+<span class="go">(0, 255, 255)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hex2rgb</span><span class="p">(</span><span class="s1">&#39;#000ffffff&#39;</span><span class="p">)</span>
+<span class="go">(0, 255, 255)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.color.rgbstring2hex">
+<code class="descclassname">bananagui.color.</code><code class="descname">rgbstring2hex</code><span class="sig-paren">(</span><em>rgbstring: str</em><span class="sig-paren">)</span> &rarr; str<a class="reference internal" href="_modules/bananagui/color.html#rgbstring2hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.color.rgbstring2hex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a CSS compatible color string to a hexadecimal color string.</p>
+<p>This supports percents.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rgbstring2hex</span><span class="p">(</span><span class="s1">&#39;rgb(255,100%,0)&#39;</span><span class="p">)</span>
+<span class="go">&#39;#ffff00&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rgbstring2hex</span><span class="p">(</span><span class="s1">&#39; rgb ( 255 ,100%, 0 ) &#39;</span><span class="p">)</span>
+<span class="go">&#39;#ffff00&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rgbstring2hex</span><span class="p">(</span><span class="s1">&#39;rgba(255,100%,0,0.5)&#39;</span><span class="p">)</span>  <span class="c1"># alpha value is ignored</span>
+<span class="go">&#39;#ffff00&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.color.hex2rgbstring">
+<code class="descclassname">bananagui.color.</code><code class="descname">hex2rgbstring</code><span class="sig-paren">(</span><em>hexcolor: str</em><span class="sig-paren">)</span> &rarr; str<a class="reference internal" href="_modules/bananagui/color.html#hex2rgbstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.color.hex2rgbstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a hexadecimal color string to a CSS compatible color string.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hex2rgbstring</span><span class="p">(</span><span class="s1">&#39;#ffff00&#39;</span><span class="p">)</span>
+<span class="go">&#39;rgb(255,255,0)&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="bananagui.color.brightness">
+<code class="descclassname">bananagui.color.</code><code class="descname">brightness</code><span class="sig-paren">(</span><em>hexcolor: str</em><span class="sig-paren">)</span> &rarr; float<a class="reference internal" href="_modules/bananagui/color.html#brightness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.color.brightness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the brightness of the color between 0 and 1.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">brightness</span><span class="p">(</span><span class="s1">&#39;#000000&#39;</span><span class="p">)</span>
+<span class="go">0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">brightness</span><span class="p">(</span><span class="s1">&#39;#ffffff&#39;</span><span class="p">)</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">brightness</span><span class="p">(</span><span class="s1">&#39;#333333&#39;</span><span class="p">)</span>
+<span class="go">0.2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="clipboard.html" title="previous chapter">bananagui.clipboard - copy/pasting related functions</a></li>
+      <li>Next: <a href="font.html" title="next chapter">bananagui.font - font-related functions</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/color.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/color.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

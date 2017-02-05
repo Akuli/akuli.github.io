@@ -1,0 +1,857 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bananagui.widgets - the widget classes &#8212; BananaGUI 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bananagui.widgettree - print nice trees of widgets" href="widgettree.html" />
+    <link rel="prev" title="bananagui.msgbox - handy dialogs" href="msgbox.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bananagui.widgets">
+<span id="bananagui-widgets-the-widget-classes"></span><h1>bananagui.widgets - the widget classes<a class="headerlink" href="#module-bananagui.widgets" title="Permalink to this headline">¶</a></h1>
+<p>BananaGUI uses a concept of widgets. A widget is an element of the GUI
+that the user sees. For example, if we have a BananaGUI program with a
+window and a button in it, it consists of a <a class="reference internal" href="#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">Window</span></code></a> widget and
+a <a class="reference internal" href="#bananagui.widgets.Button" title="bananagui.widgets.Button"><code class="xref py py-class docutils literal"><span class="pre">Button</span></code></a> widget.</p>
+<p>The classes inherit from each other like this:</p>
+<img src="_images/graphviz-36af50755dbf820c5534b3b3a65cee9d97209a11.png" alt="digraph inheritance {
+   Widget -&gt; Child -&gt; &quot;all other widgets&quot;;
+   Widget -&gt; Parent;
+   Parent -&gt; Bin;
+   Bin -&gt; Group;
+   Child -&gt; Group;
+   Bin -&gt; Scroller;
+   Child -&gt; Scroller;
+   Bin -&gt; Window -&gt; Dialog;
+   Parent -&gt; Box;
+   Child -&gt; Box;
+}" />
+<div class="section" id="base-classes">
+<h2>Base classes<a class="headerlink" href="#base-classes" title="Permalink to this headline">¶</a></h2>
+<p>These classes cannot be instantiated, but other widget classes are based
+on these. You can use these classes with <a class="reference external" href="https://docs.python.org/3/library/functions.html#isinstance" title="(in Python v3.6)"><code class="xref py py-func docutils literal"><span class="pre">isinstance()</span></code></a> and
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#issubclass" title="(in Python v3.6)"><code class="xref py py-func docutils literal"><span class="pre">issubclass()</span></code></a> or you can use their methods with other widgets that
+inherit from them.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Widget">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Widget</code><a class="headerlink" href="#bananagui.widgets.Widget" title="Permalink to this definition">¶</a></dt>
+<dd><p>A baseclass for all widgets.</p>
+<p>All widgets inherit from this class, so all widgets have the methods 
+that this class has.</p>
+<dl class="method">
+<dt id="bananagui.widgets.Widget.focus">
+<code class="descname">focus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/widgets/basewidgets.html#Widget.focus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.widgets.Widget.focus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give the keyboard focus to this widget.</p>
+<p>Widget classes have a <code class="docutils literal"><span class="pre">can_focus</span></code> attribute, and this method
+cannot be called if it&#8217;s False.</p>
+<p>Focusing a <a class="reference internal" href="#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">Window</span></code></a> or <a class="reference internal" href="#bananagui.widgets.Dialog" title="bananagui.widgets.Dialog"><code class="xref py py-class docutils literal"><span class="pre">Dialog</span></code></a> brings it in
+front of all other windows. When focusing something else it&#8217;s
+recommended to first create the widgets and then focus one of
+them to make sure that the widget gets focused correctly with
+all GUI toolkits.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Widget.real_widget">
+<code class="descname">real_widget</code><a class="headerlink" href="#bananagui.widgets.Widget.real_widget" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the real GUI toolkit&#8217;s widget that BananaGUI uses.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Child">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Child</code><span class="sig-paren">(</span><em>tooltip=None</em>, <em>grayed_out=False</em>, <em>expand=(True</em>, <em>True)</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Child" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for widgets that can be added to <a class="reference internal" href="#bananagui.widgets.Parent" title="bananagui.widgets.Parent"><code class="xref py py-class docutils literal"><span class="pre">Parent</span></code></a> widgets.</p>
+<p>BananaGUI keeps track of the parent internally. When a child is
+added to a parent widget, BananaGUI remembers it. The child can be
+removed from the parent widget and added into it again, but it
+cannot be added to other parent widgets. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">box1</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Box</span><span class="p">()</span>
+<span class="n">box2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Box</span><span class="p">()</span>
+<span class="n">label</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>     <span class="c1"># label doesn&#39;t have a parent</span>
+<span class="n">box1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>          <span class="c1"># label&#39;s parent is now box1</span>
+<span class="n">box1</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>          <span class="c1"># label&#39;s parent is still box1</span>
+<span class="n">box2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>          <span class="c1"># this raises an exception!</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.Child.expand">
+<code class="descname">expand</code><a class="headerlink" href="#bananagui.widgets.Child.expand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two-tuple of horizontal and vertical expanding.</p>
+<p>This is <code class="docutils literal"><span class="pre">(True,</span> <span class="pre">True)</span></code> by default, so the widget expands in both
+directions.</p>
+<p>When multiple widgets are next to each other in a layout widget, at 
+least one of them should expand in the layout widget&#8217;s direction. 
+Like this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,------------------------------------------------.
+|   non-   |                                     |
+|expanding |           expanding widget          |
+|  widget  |                                     |
+`------------------------------------------------&#39;
+</pre></div>
+</div>
+<p>Not like this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,------------------------------------------------.
+|   non-   |   non-   |                          |
+|expanding |expanding |       empty space        |
+|  widget  |  widget  |                          |
+`------------------------------------------------&#39;
+</pre></div>
+</div>
+<p>This way the children will behave consistently with all GUI 
+toolkits. You can use a <a class="reference internal" href="#bananagui.widgets.Dummy" title="bananagui.widgets.Dummy"><code class="xref py py-class docutils literal"><span class="pre">Dummy</span></code></a> widget to fill the empty 
+space if needed:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,------------------------------------------------.
+|   non-   |   non-   |                          |
+|expanding |expanding |       Dummy widget       |
+|  widget  |  widget  |                          |
+`------------------------------------------------&#39;
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Child.grayed_out">
+<code class="descname">grayed_out</code><a class="headerlink" href="#bananagui.widgets.Child.grayed_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the widget looks like it&#8217;s disabled.</p>
+<p>This can be used to tell the user that the widget can&#8217;t be used for
+some reason.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Child.tooltip">
+<code class="descname">tooltip</code><a class="headerlink" href="#bananagui.widgets.Child.tooltip" title="Permalink to this definition">¶</a></dt>
+<dd><p>The widget&#8217;s tooltip text or None for no tooltip.</p>
+<p>None by default.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Parent">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Parent</code><a class="headerlink" href="#bananagui.widgets.Parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>A base class for widgets that contain other widgets.</p>
+<dl class="attribute">
+<dt id="bananagui.widgets.Parent.children">
+<code class="descname">children</code><a class="headerlink" href="#bananagui.widgets.Parent.children" title="Permalink to this definition">¶</a></dt>
+<dd><p>A view of this widget&#8217;s children.</p>
+<p>Dictionaries have a <code class="docutils literal"><span class="pre">keys()</span></code> method that returns a set-like view 
+of the keys. This is similar, but this contains <a class="reference internal" href="#bananagui.widgets.Child" title="bananagui.widgets.Child"><code class="xref py py-class docutils literal"><span class="pre">Child</span></code></a> 
+widgets instead of keys.</p>
+<p>Subclasses of <a class="reference internal" href="#bananagui.widgets.Parent" title="bananagui.widgets.Parent"><code class="xref py py-class docutils literal"><span class="pre">Parent</span></code></a> provide different kinds of ways to 
+access the children, but all Parent widgets have a children 
+attribute that works consistently.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Bin">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Bin</code><span class="sig-paren">(</span><em>child=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for widgets that may contain only one child at a time.</p>
+<p>See <a class="reference internal" href="#layout-widgets">Layout widgets</a> if you want to have multiple widgets in a Bin 
+widget. This whole concept may seem stupid, but BananaGUI would be 
+more complicated without separate Bin widgets and layout widgets.</p>
+<dl class="method">
+<dt id="bananagui.widgets.Bin.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>child: bananagui.widgets.Child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/widgets/parents.html#Bin.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.widgets.Bin.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a child widget into this widget.</p>
+<p>This widget must not contain another child. The <a class="reference internal" href="#bananagui.widgets.Bin.child" title="bananagui.widgets.Bin.child"><code class="xref py py-attr docutils literal"><span class="pre">child</span></code></a> 
+attribute will be set to the new child.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Bin.child">
+<code class="descname">child</code><a class="headerlink" href="#bananagui.widgets.Bin.child" title="Permalink to this definition">¶</a></dt>
+<dd><p>The child in the widget.</p>
+<p>This can be None and this is None by default. Use <a class="reference internal" href="#bananagui.widgets.Bin.add" title="bananagui.widgets.Bin.add"><code class="xref py py-meth docutils literal"><span class="pre">add()</span></code></a> 
+and <a class="reference internal" href="#bananagui.widgets.Bin.remove" title="bananagui.widgets.Bin.remove"><code class="xref py py-meth docutils literal"><span class="pre">remove()</span></code></a> or an initialization argument to set this.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bananagui.widgets.Bin.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>child: bananagui.widgets.Child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/widgets/parents.html#Bin.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.widgets.Bin.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the child from the widget.</p>
+<p>The child attribute is set to None. The argument must be the
+Child widget that is currently in this widget.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="window-widgets">
+<h2>Window widgets<a class="headerlink" href="#window-widgets" title="Permalink to this headline">¶</a></h2>
+<p>Almost all GUI applications have one or more windows. These classes
+allow you to create windows in BananaGUI. Note that these widgets
+inherit from <a class="reference internal" href="#bananagui.widgets.Bin" title="bananagui.widgets.Bin"><code class="xref py py-class docutils literal"><span class="pre">Bin</span></code></a>.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Window">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Window</code><span class="sig-paren">(</span><em>title='BananaGUI Window'</em>, <em>*</em>, <em>child=None</em>, <em>resizable=True</em>, <em>minimum_size=(0</em>, <em>0)</em>, <em>hidden=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Window" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class that represents a window.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,---------------------------------------.
+|           Window          | _ | o | X |
+|---------------------------------------|
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+`---------------------------------------&#39;
+</pre></div>
+</div>
+<p>These windows don&#8217;t have a parent window. You can create multiple 
+windows like this.</p>
+<dl class="method">
+<dt id="bananagui.widgets.Window.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/widgets/window.html#Window.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.widgets.Window.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the window and set <a class="reference internal" href="#bananagui.widgets.Window.closed" title="bananagui.widgets.Window.closed"><code class="xref py py-attr docutils literal"><span class="pre">closed</span></code></a> to True.</p>
+<p>Closed windows are not displayed to the user, and most 
+operations on a closed window raise an exception.</p>
+<p>This method can be called multiple times and it will do nothing
+after the first call.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.closed">
+<code class="descname">closed</code><a class="headerlink" href="#bananagui.widgets.Window.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if <a class="reference internal" href="#bananagui.widgets.Window.close" title="bananagui.widgets.Window.close"><code class="xref py py-meth docutils literal"><span class="pre">close()</span></code></a> has been called.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.hidden">
+<code class="descname">hidden</code><a class="headerlink" href="#bananagui.widgets.Window.hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>False if the window is showing.</p>
+<p>Hiding the window is easier than creating a new window when a window 
+with the same content needs to be displayed multiple times.</p>
+<p>If you are wondering why your window isn&#8217;t showing up, it&#8217;s not 
+necessarily hidden. There are other things that could be also wrong:</p>
+<ul class="simple">
+<li>The window might be closed because <a class="reference internal" href="#bananagui.widgets.Window.close" title="bananagui.widgets.Window.close"><code class="xref py py-meth docutils literal"><span class="pre">close()</span></code></a> has been called.</li>
+<li>The mainloop might not be running. See <a class="reference internal" href="mainloop.html#module-bananagui.mainloop" title="bananagui.mainloop"><code class="xref py py-mod docutils literal"><span class="pre">bananagui.mainloop</span></code></a>.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.minimum_size">
+<code class="descname">minimum_size</code><a class="headerlink" href="#bananagui.widgets.Window.minimum_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two-tuple of smallest allowed width and height.</p>
+<p>If the content of the window take up more space than this, this is 
+ignored. This is <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">0)</span></code> by default, so the window is always 
+large enough for its content.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.on_close">
+<code class="descname">on_close</code><a class="headerlink" href="#bananagui.widgets.Window.on_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>A callback that runs when the user tries to close the window.</p>
+<p>This callback doesn&#8217;t actually run when <a class="reference internal" href="#bananagui.widgets.Window.close" title="bananagui.widgets.Window.close"><code class="xref py py-meth docutils literal"><span class="pre">close()</span></code></a> is called. 
+The close method closes the window, but this runs when the <em>user</em> 
+tries to close the window. Usually you should connect this to
+<a class="reference internal" href="mainloop.html#bananagui.mainloop.quit" title="bananagui.mainloop.quit"><code class="xref py py-func docutils literal"><span class="pre">bananagui.mainloop.quit()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.on_size_changed">
+<code class="descname">on_size_changed</code><a class="headerlink" href="#bananagui.widgets.Window.on_size_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This callback is ran when <a class="reference internal" href="#bananagui.widgets.Window.size" title="bananagui.widgets.Window.size"><code class="xref py py-attr docutils literal"><span class="pre">size</span></code></a> changes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.resizable">
+<code class="descname">resizable</code><a class="headerlink" href="#bananagui.widgets.Window.resizable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the user can resize the window.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.size">
+<code class="descname">size</code><a class="headerlink" href="#bananagui.widgets.Window.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current window size.</p>
+<p>Like most other sizes, this is a two-tuple of integers. Adding
+widgets to the window may change this, so setting this on
+initialization is not supported.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Window.title">
+<code class="descname">title</code><a class="headerlink" href="#bananagui.widgets.Window.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text in the top bar.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bananagui.widgets.Window.wait">
+<code class="descname">wait</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bananagui/widgets/window.html#Window.wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bananagui.widgets.Window.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until the window is closed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Dialog">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Dialog</code><span class="sig-paren">(</span><em>parentwindow: bananagui.widgets.Window</em>, <em>title=None</em>, <em>*</em>, <em>resizable=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>A window that has a parent window.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,---------------------------------------.
+|       Parent window       | _ | o | X |
+|---------------------------------------|
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|                                       |
+|               ,-------------------------------.
+|               |           Dialog          | X |
+|               |-------------------------------|
+|               |                               |
+|               |                               |
+`---------------|                               |
+                |                               |
+                |                               |
+                `-------------------------------&#39;
+</pre></div>
+</div>
+<p>This class inherits from <a class="reference internal" href="#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">Window</span></code></a>. The title defaults to 
+<em>parentwindow</em>&#8216;s title.</p>
+<dl class="attribute">
+<dt id="bananagui.widgets.Dialog.parentwindow">
+<code class="descname">parentwindow</code><a class="headerlink" href="#bananagui.widgets.Dialog.parentwindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#bananagui.widgets.Window" title="bananagui.widgets.Window"><code class="xref py py-class docutils literal"><span class="pre">Window</span></code></a> that this Dialog &#8220;belongs to&#8221;.</p>
+<p>The dialog may be centered over the parent window, it may be 
+modal or whatever the real GUI toolkit supports.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="labels">
+<h2>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h2>
+<p>Labels are <a class="reference internal" href="#bananagui.widgets.Child" title="bananagui.widgets.Child"><code class="xref py py-class docutils literal"><span class="pre">Child</span></code></a> widgets that display something to the user.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Label">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Label</code><span class="sig-paren">(</span><em>text=''</em>, <em>*</em>, <em>align=&lt;Align.CENTER: 2&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Label" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget that displays text.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,---------------.
+|  Hello World! |
+`---------------&#39;
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#text-editing-widgets">Text editing widgets</a>.</p>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.Label.align">
+<code class="descname">align</code><a class="headerlink" href="#bananagui.widgets.Label.align" title="Permalink to this definition">¶</a></dt>
+<dd><p>How the text is aligned.</p>
+<p>This needs to be a <a class="reference internal" href="bananagui.html#bananagui.Align" title="bananagui.Align"><code class="xref py py-class docutils literal"><span class="pre">bananagui.Align</span></code></a> member.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Label.text">
+<code class="descname">text</code><a class="headerlink" href="#bananagui.widgets.Label.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text in the label.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.ImageLabel">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">ImageLabel</code><span class="sig-paren">(</span><em>image=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.ImageLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget that displays an image.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,---------------.
+|        __     |
+|    _  / /     |
+|     )/ /      |
+|    /  /_      |
+|   |  |  \     |
+|   |_/         |
+`---------------&#39;
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.ImageLabel.image">
+<code class="descname">image</code><a class="headerlink" href="#bananagui.widgets.ImageLabel.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>The image displayed in the button.</p>
+<p>This should be None or a <a class="reference internal" href="images.html#bananagui.images.Image" title="bananagui.images.Image"><code class="xref py py-class docutils literal"><span class="pre">bananagui.images.Image</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="buttons">
+<h2>Buttons<a class="headerlink" href="#buttons" title="Permalink to this headline">¶</a></h2>
+<p>Buttons are <a class="reference internal" href="#bananagui.widgets.Child" title="bananagui.widgets.Child"><code class="xref py py-class docutils literal"><span class="pre">Child</span></code></a> widgets that display something like labels,
+but they can also be clicked.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Button">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Button</code><span class="sig-paren">(</span><em>text=''</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Button" title="Permalink to this definition">¶</a></dt>
+<dd><p>A button that displays text in it.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span> _______________
+|,--------------\
+||   Click me!  |
+`---------------&#39;
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.Button.on_click">
+<code class="descname">on_click</code><a class="headerlink" href="#bananagui.widgets.Button.on_click" title="Permalink to this definition">¶</a></dt>
+<dd><p>A callback that runs when the button is clicked.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Button.text">
+<code class="descname">text</code><a class="headerlink" href="#bananagui.widgets.Button.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text in the button.</p>
+<p>An empty string by default.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.ImageButton">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">ImageButton</code><span class="sig-paren">(</span><em>image=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.ImageButton" title="Permalink to this definition">¶</a></dt>
+<dd><p>A button that displays an image.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span> _______________
+|.--------------\
+||       __     |
+||   _  / /     |
+||    )/ /      |
+||   /  /_      |
+||  |  |  \     |
+||  |_/         |
+`---------------&#39;
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.ImageButton.image">
+<code class="descname">image</code><a class="headerlink" href="#bananagui.widgets.ImageButton.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>The image displayed in the button.</p>
+<p>This can be None or a <a class="reference internal" href="images.html#bananagui.images.Image" title="bananagui.images.Image"><code class="xref py py-class docutils literal"><span class="pre">bananagui.images.Image</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.ImageButton.on_click">
+<code class="descname">on_click</code><a class="headerlink" href="#bananagui.widgets.ImageButton.on_click" title="Permalink to this definition">¶</a></dt>
+<dd><p>A callback that runs when the button is clicked.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="layout-widgets">
+<h2>Layout widgets<a class="headerlink" href="#layout-widgets" title="Permalink to this headline">¶</a></h2>
+<p>Layout widgets are <a class="reference internal" href="#bananagui.widgets.Parent" title="bananagui.widgets.Parent"><code class="xref py py-class docutils literal"><span class="pre">Parent</span></code></a> widgets and <a class="reference internal" href="#bananagui.widgets.Child" title="bananagui.widgets.Child"><code class="xref py py-class docutils literal"><span class="pre">Child</span></code></a> widgets
+at the same time. These widgets allow you to add multiple widgets inside
+a <a class="reference internal" href="#bananagui.widgets.Bin" title="bananagui.widgets.Bin"><code class="xref py py-class docutils literal"><span class="pre">Bin</span></code></a> widget. There is no Layout baseclass, layout widgets
+simply inherit from Parent and Child at the same time.</p>
+<p>Currently BananaGUI has only one layout widget:</p>
+<dl class="class">
+<dt id="bananagui.widgets.Box">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Box</code><span class="sig-paren">(</span><em>orient=&lt;Orient.VERTICAL: 2&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Box" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget that contains other widgets next to or above each other.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,----------.
+|  box[0]  |    ,-----------------------------------.
+|----------|    |   box[0]  |   box[1]  |   box[2]  |
+|  box[1]  |    `-----------------------------------&#39;
+|----------|
+|  box[2]  |
+`----------&#39;
+</pre></div>
+</div>
+<p>To access the children just treat the Box object like a list:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">box</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>   <span class="c1"># add a child</span>
+<span class="n">box</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>   <span class="c1"># remove a child</span>
+<span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>              <span class="c1"># get the first child</span>
+<span class="n">box</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>             <span class="c1"># get a list of first three children</span>
+<span class="k">del</span> <span class="n">box</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>         <span class="c1"># remove first three children</span>
+<span class="n">box</span><span class="p">[:]</span>              <span class="c1"># get a list of children</span>
+<span class="k">if</span> <span class="n">box</span><span class="p">:</span> <span class="o">...</span>         <span class="c1"># check if there are children in the box</span>
+</pre></div>
+</div>
+<p>Unfortunately <code class="docutils literal"><span class="pre">random.shuffle(box)</span></code> doesn&#8217;t work because it wants
+to temporarily add the same children to the box twice. You need to
+do this instead:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">children</span> <span class="o">=</span> <span class="n">box</span><span class="p">[:]</span>
+<span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+<span class="n">box</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">children</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">The <a class="reference internal" href="#bananagui.widgets.Checkbox" title="bananagui.widgets.Checkbox"><code class="xref py py-class docutils literal"><span class="pre">Checkbox</span></code></a> widget has nothing to do with 
+this widget, but it has a similar name so you might be 
+looking for it.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="progress-bars">
+<h2>Progress bars<a class="headerlink" href="#progress-bars" title="Permalink to this headline">¶</a></h2>
+<p>These widgets display a progress bar to the user.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Progressbar">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Progressbar</code><span class="sig-paren">(</span><em>*</em>, <em>progress=0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Progressbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>A progress bar widget.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-------------------.
+| OOOOOOOOOOO       |
+`-------------------&#39;
+</pre></div>
+</div>
+<p>The progress bar is always horizontal. Contact me if you need a
+vertical progress bar and I&#8217;ll implement it.</p>
+<dl class="attribute">
+<dt id="bananagui.widgets.Progressbar.progress">
+<code class="descname">progress</code><a class="headerlink" href="#bananagui.widgets.Progressbar.progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>The progressbar&#8217;s position.</p>
+<p>This is always between 0 and 1.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.BouncingProgressbar">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">BouncingProgressbar</code><span class="sig-paren">(</span><em>*</em>, <em>bouncing=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.BouncingProgressbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>A progressbar-like widget that bounces back and forth.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-------------------.
+|           OOOO    |
+`-------------------&#39;
+</pre></div>
+</div>
+<p>The progressbar doesn&#8217;t bounce by default. Set <a class="reference internal" href="#bananagui.widgets.BouncingProgressbar.bouncing" title="bananagui.widgets.BouncingProgressbar.bouncing"><code class="xref py py-attr docutils literal"><span class="pre">bouncing</span></code></a> to 
+True to make it bounce.</p>
+<dl class="attribute">
+<dt id="bananagui.widgets.BouncingProgressbar.bouncing">
+<code class="descname">bouncing</code><a class="headerlink" href="#bananagui.widgets.BouncingProgressbar.bouncing" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the widget actually bounces.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="text-editing-widgets">
+<h2>Text editing widgets<a class="headerlink" href="#text-editing-widgets" title="Permalink to this headline">¶</a></h2>
+<p>These widgets display text to the user, but they also allow the user to
+edit that text.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Entry">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Entry</code><span class="sig-paren">(</span><em>text=''</em>, <em>*</em>, <em>secret=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>A one-line text widget.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-----------------------.
+| Enter something...    |
+`-----------------------&#39;
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#number-selecting-widgets">Number selecting widgets</a>.</p>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.Entry.secret">
+<code class="descname">secret</code><a class="headerlink" href="#bananagui.widgets.Entry.secret" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the text is hidden with stars or balls.</p>
+<p>It&#8217;s also impossible to copy-paste from a secret entry. This is
+useful for asking a password.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.TextEdit">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">TextEdit</code><span class="sig-paren">(</span><em>text=''</em>, <em>*</em>, <em>tab='t'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.TextEdit" title="Permalink to this definition">¶</a></dt>
+<dd><p>A multiline text widget.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-----------.
+| Line 0    |
+| Line 1    |
+| Line 2    |
+| Line 3    |
+|           |
+`-----------&#39;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The TextEdit widget doesn&#8217;t work that well right now. I&#8217;ll
+make a better TextEdit widget when I have time and it will 
+have a different API, so don&#8217;t rely on this widget.</p>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.TextEdit.tab">
+<code class="descname">tab</code><a class="headerlink" href="#bananagui.widgets.TextEdit.tab" title="Permalink to this definition">¶</a></dt>
+<dd><p>The character that pressing tab inserts.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="number-selecting-widgets">
+<h2>Number selecting widgets<a class="headerlink" href="#number-selecting-widgets" title="Permalink to this headline">¶</a></h2>
+<p>You can use <a class="reference internal" href="#bananagui.widgets.Entry" title="bananagui.widgets.Entry"><code class="xref py py-class docutils literal"><span class="pre">Entry</span></code></a> widgets for selecting numbers, but these
+widgets are usually a better choice.</p>
+<dl class="class">
+<dt id="bananagui.widgets.Spinbox">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Spinbox</code><span class="sig-paren">(</span><em>valuerange: range</em>, <em>*</em>, <em>value=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Spinbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget for selecting an integer.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-----------------------.
+| 123           | + | - |
+`-----------------------&#39;
+</pre></div>
+</div>
+<p>You can use Entry widgets for selecting numbers, but this widget 
+provides nicer + and - buttons.</p>
+<p>Spinboxes can&#8217;t be used with floats because the allowed values are 
+represented by a Python range object, so you need to use an Entry if 
+you want to use floats.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Slider">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Slider</code><span class="sig-paren">(</span><em>valuerange: range</em>, <em>orient=&lt;Orient.HORIZONTAL: 1&gt;</em>, <em>*</em>, <em>value=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Slider" title="Permalink to this definition">¶</a></dt>
+<dd><p>A slider for selecting a number.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>|
+O   -----O--------
+|
+|
+|
+</pre></div>
+</div>
+<p>Currently floats aren&#8217;t supported. If you want float support, let
+me know and I&#8217;ll implement it.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="miscellaneous-widgets">
+<h2>Miscellaneous widgets<a class="headerlink" href="#miscellaneous-widgets" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bananagui.widgets.Checkbox">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Checkbox</code><span class="sig-paren">(</span><em>text=''</em>, <em>*</em>, <em>checked=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Checkbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget that can be checked.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-------------------.
+|   |   Check me!   |
+`-------------------&#39;
+
+,-------------------.
+| X |  Uncheck me!  |
+`-------------------&#39;
+</pre></div>
+</div>
+<p>The Checkbox widget has nothing to do with the <a class="reference internal" href="#bananagui.widgets.Box" title="bananagui.widgets.Box"><code class="xref py py-class docutils literal"><span class="pre">Box</span></code></a> widget.</p>
+<dl class="attribute">
+<dt id="bananagui.widgets.Checkbox.checked">
+<code class="descname">checked</code><a class="headerlink" href="#bananagui.widgets.Checkbox.checked" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the checkbox is currently checked.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Checkbox.on_checked_changed">
+<code class="descname">on_checked_changed</code><a class="headerlink" href="#bananagui.widgets.Checkbox.on_checked_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This callback is ran when <a class="reference internal" href="#bananagui.widgets.Checkbox.checked" title="bananagui.widgets.Checkbox.checked"><code class="xref py py-attr docutils literal"><span class="pre">checked</span></code></a> changes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bananagui.widgets.Checkbox.text">
+<code class="descname">text</code><a class="headerlink" href="#bananagui.widgets.Checkbox.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text next to the checkmark.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Dummy">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Dummy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Dummy" title="Permalink to this definition">¶</a></dt>
+<dd><p>An empty widget.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-----------.
+|           |
+|           |
+`-----------&#39;
+</pre></div>
+</div>
+<p>This is useful for creating layouts with empty space that must be 
+filled with something. See <a class="reference internal" href="#bananagui.widgets.Child.expand" title="bananagui.widgets.Child.expand"><code class="xref py py-attr docutils literal"><span class="pre">Child.expand</span></code></a> for more info.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Separator">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Separator</code><span class="sig-paren">(</span><em>orient=&lt;Orient.HORIZONTAL: 1&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Separator" title="Permalink to this definition">¶</a></dt>
+<dd><p>A horizontal or vertical line.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>                ||
+    Widget 1    ||
+================||  Widget 3
+    Widget 2    ||
+                ||
+</pre></div>
+</div>
+<p>Usually there&#8217;s no need to add separators between widgets, but they
+are sometimes useful.</p>
+<dl class="attribute">
+<dt id="bananagui.widgets.Separator.orient">
+<code class="descname">orient</code><a class="headerlink" href="#bananagui.widgets.Separator.orient" title="Permalink to this definition">¶</a></dt>
+<dd><p>The orient set on initialization.</p>
+<p>This is always a <a class="reference internal" href="bananagui.html#bananagui.Orient" title="bananagui.Orient"><code class="xref py py-class docutils literal"><span class="pre">bananagui.Orient</span></code></a> member.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Scroller">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Scroller</code><span class="sig-paren">(</span><em>child=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Scroller" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget that adds scrollbars around its child.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,-------------.
+|           | |
+|           | |
+|    big    | |
+|   child   | |
+|   widget  | |
+|           |o|
+|           |o|
+|           |o|
+|___________|_|
+|  ooo        |
+`-------------&#39;
+</pre></div>
+</div>
+<p>The scroller displays a horizontal and a vertical scrollbar
+automatically when needed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This widget is currently not available on Tkinter.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="bananagui.widgets.Group">
+<em class="property">class </em><code class="descclassname">bananagui.widgets.</code><code class="descname">Group</code><span class="sig-paren">(</span><em>text=''</em>, <em>child=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bananagui.widgets.Group" title="Permalink to this definition">¶</a></dt>
+<dd><p>A widget for grouping other related widgets together.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>,- Group -----------.
+|                   |
+|                   |
+|    child widget   |
+|                   |
+|                   |
+`-------------------&#39;
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="bananagui.widgets.Group.text">
+<code class="descname">text</code><a class="headerlink" href="#bananagui.widgets.Group.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text at the top of the group.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">bananagui.widgets - the widget classes</a><ul>
+<li><a class="reference internal" href="#base-classes">Base classes</a></li>
+<li><a class="reference internal" href="#window-widgets">Window widgets</a></li>
+<li><a class="reference internal" href="#labels">Labels</a></li>
+<li><a class="reference internal" href="#buttons">Buttons</a></li>
+<li><a class="reference internal" href="#layout-widgets">Layout widgets</a></li>
+<li><a class="reference internal" href="#progress-bars">Progress bars</a></li>
+<li><a class="reference internal" href="#text-editing-widgets">Text editing widgets</a></li>
+<li><a class="reference internal" href="#number-selecting-widgets">Number selecting widgets</a></li>
+<li><a class="reference internal" href="#miscellaneous-widgets">Miscellaneous widgets</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="msgbox.html" title="previous chapter">bananagui.msgbox - handy dialogs</a></li>
+      <li>Next: <a href="widgettree.html" title="next chapter">bananagui.widgettree - print nice trees of widgets</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/widgets.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017 Akuli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/widgets.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Akuli/BananaGUI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
