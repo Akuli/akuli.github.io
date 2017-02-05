@@ -9,11 +9,6 @@ a list of things that I have complained so far:
 
 - [Python's pathlib module](thingssuck/pathlib.md)
 
-## BananaGUI Documentation
-
-[BananaGUI](https://github.com/Akuli/BananaGUI) is one of the projects I 
-have done and its documentation is [here](bananagui-docs/index.html).
-
 ## About me
 
 - [My GitHub](https://github.com/Akuli/)
