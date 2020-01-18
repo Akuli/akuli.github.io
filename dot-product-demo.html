@@ -37,11 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return [length*Math.cos(newAngle), length*Math.sin(newAngle)];
   }
 
-  function createVectorPath(vec) {
+  function createLinePath(start, end) {
     const path = new Path2D();
-    path.moveTo(0, 0);
-    path.lineTo(...vec);
+    path.moveTo(...start);
+    path.lineTo(...end);
+    return path
+  }
 
+  function createVectorPath(vec) {
+    const path = createLinePath([0, 0], vec);
     const arrowThing = unitVector(vec).map(x => x * 10);
 
     for (const angle of [ -Math.PI * 3/4, Math.PI * 3/4 ]) {
@@ -84,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const spinner = rotateVector([80, 0], -(+new Date()) / 2e3);
     const spinnerRotated90 = rotateVector(spinner, Math.PI / 2);
 
-    // dot product is huge because pixel counts are big
-    // so scale it down to make it more user-friendly
-    const userFriendlyDotProductValue = dotProduct(fixedVector, spinner) / 7000;
+    const projectionLength = dotProduct(fixedVector, spinner) / vectorLength(fixedVector);
+    const projectionVector = unitVector(fixedVector).map(x => x * projectionLength);
+
     if (dotProduct(fixedVector, spinner) > 0) {
       context.fillStyle = '#990';
     } else {
@@ -94,17 +98,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     context.fill(createParallelogramPath(fixedVector, spinnerRotated90));
 
+    // dot product is huge because pixel counts are big
+    // so scale it down to make it more user-friendly
+    const userFriendlyDotProductValue = dotProduct(fixedVector, spinner) / 7000;
+
     context.fillStyle = '#fff';
+    context.textAlign = 'start';
     context.fillText(
-      "v⋅w = " + round(userFriendlyDotProductValue, 2),
+      "v⋅w = x|v| = " + round(userFriendlyDotProductValue, 2),
       ...averageVector(fixedVector, spinnerRotated90));
 
     context.stroke(createVectorPath(fixedVector));
     context.stroke(createVectorPath(spinner));
 
     context.fillStyle = '#000';
+
+    context.textAlign = 'start';
     context.fillText("  v", ...fixedVector);
     context.fillText("  w", ...spinner);
+
+    context.setLineDash([5, 5]);
+    context.stroke(createLinePath(projectionVector, spinner));
+
+    const xSignTextLocation = averageVector([0, 0], projectionVector);
+    xSignTextLocation[1] += 10;
+    context.textAlign = 'center';
+
+    if (dotProduct(fixedVector, spinner) > 0) {
+      context.fillText("x > 0", ...xSignTextLocation);
+    } else {
+      context.stroke(createLinePath([0, 0], projectionVector));
+      context.fillText("x < 0", ...xSignTextLocation);
+    }
+    context.setLineDash([]);
 
     window.requestAnimationFrame(drawAllTheThings);
   }
