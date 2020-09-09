@@ -1,9 +1,51 @@
+function getSmallestNeededCoords(actions) {
+  let xMin = Infinity;
+  let yMin = Infinity;
+  let xMapping = new Map();
+  let yMapping = new Map();
+
+  function updateMins() {
+    xMin = Math.min(xMin, ...xMapping.values());
+    yMin = Math.min(yMin, ...yMapping.values());
+    if (isNaN(xMin) || isNaN(yMin)) {
+      throw new Error("NaN problem");
+    }
+  }
+
+  for (const action of actions.filter(action => ['create', 'config'].includes(action.type))) {
+    if (action.x !== undefined) {
+      xMapping.set(action.element, action.x);
+    }
+    if (action.y !== undefined) {
+      yMapping.set(action.element, action.y);
+    }
+    updateMins();
+    if (action.dx) {
+      xMapping.set(action.element, xMapping.get(action.element) + action.dx);
+    }
+    if (action.dy) {
+      yMapping.set(action.element, yMapping.get(action.element) + action.dy);
+    }
+    updateMins();
+  }
+
+  if (!isFinite(xMin) || !isFinite(yMin)) {
+    throw new Error("infinity or NaN problem");
+  }
+  return {xMin, yMin};
+}
+
 class Animator {
   constructor(contentDiv, steps) {
     this._contentDiv = contentDiv;
     this.steps = steps;
     this.stepIndex = 0;
     this._undoCallbacks = [];  // contents are like: {stepIndex: 123, run: () => {...}}
+
+    let {xMin, yMin} = getSmallestNeededCoords(steps.flat());
+    this._translateX = -xMin;
+    this._translateY = -yMin;
+
     this.showNext();  // first step always done
   }
 
@@ -64,12 +106,11 @@ class Animator {
           if (action.zIndex !== undefined) {
             this.set(action.element.style, 'zIndex', action.zIndex);
           }
-          // TODO: don't hard-code origin
           if (action.x !== undefined) {
-            this.set(action.element.style, 'left', `calc(350px + ${action.x} * var(--math-unit))`);
+            this.set(action.element.style, 'left', `calc(${this._translateX + action.x}*var(--math-unit))`);
           }
           if (action.y !== undefined) {
-            this.set(action.element.style, 'top', `calc(350px + ${action.y} * var(--math-unit))`);
+            this.set(action.element.style, 'top', `calc(${this._translateY + action.y}*var(--math-unit))`);
           }
           if (action.dx) {
             const insideCalc = action.element.style.left.slice('calc('.length, -')'.length);
@@ -100,9 +141,12 @@ class Animator {
 
 function showAnimation(elementId, steps) {
   const div = document.getElementById(elementId);
-  div.innerHTML = '<div class="content"></div><button>Previous</button><button>Next</button>';
-  const [contentDiv, prevButton, nextButton] = div.children;
-  const animator = new Animator(contentDiv, steps);
+
+  // nested divs needed because absolute positioning is awesome
+  div.innerHTML = '<div class="animation-content"><div></div></div><button>Previous</button><button>Next</button>';
+  const [outerContentDiv, prevButton, nextButton] = div.children;
+  const [innerContentDiv] = outerContentDiv.children;
+  const animator = new Animator(innerContentDiv, steps);
 
   function updateButtons() {
     prevButton.disabled = (animator.stepIndex === 1);

@@ -1,12 +1,21 @@
-#animation > .content > * {
+#animation > .animation-content {
+    --math-unit: 30px;
+    height: calc(21*var(--math-unit));
+    margin: 20px;
+}
+
+.animation-content > div {
+    position: absolute;   /* needed for content's children to respect margin */
+}
+
+.animation-content > div > * {
     /* typically much of this is overrided in element-specific styles */
     position: absolute;
     left: 0px;
     top: 0px;
     transition: all 0.5s ease-in-out;
-    --math-unit: 30px;
 }
-#animation > .content > .square {
+.animation-content > div > .square {
     width: var(--math-unit);
     height: var(--math-unit);
     border: 1px solid black;
@@ -18,12 +27,12 @@
     border-radius: 10px;
     border: 1px solid;
 }
-#animation > .content > .square.color1 {
+.animation-content > div > .square.color1 {
     background-color: #80ff80;
 }
-#animation > .content > .square.color2 {
+.animation-content > div > .square.color2 {
     background-color: #ff8080;
 }
-#animation > .content > .square.merged {
+.animation-content > div > .square.merged {
     background-color: #ff80ff;
 }
