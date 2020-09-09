@@ -1,8 +1,4 @@
-#animation {
-    width: 700px;
-    height: 700px;
-}
-#animation > * {
+#animation > .content > * {
     /* typically much of this is overrided in element-specific styles */
     position: absolute;
     left: 0px;
@@ -10,7 +6,7 @@
     transition: all 0.5s ease-in-out;
     --math-unit: 30px;
 }
-#animation > .square {
+#animation > .content > .square {
     width: var(--math-unit);
     height: var(--math-unit);
     border: 1px solid black;
@@ -22,12 +18,12 @@
     border-radius: 10px;
     border: 1px solid;
 }
-#animation > .square.color1 {
+#animation > .content > .square.color1 {
     background-color: #80ff80;
 }
-#animation > .square.color2 {
+#animation > .content > .square.color2 {
     background-color: #ff8080;
 }
-#animation > .square.merged {
+#animation > .content > .square.merged {
     background-color: #ff80ff;
 }

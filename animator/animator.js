@@ -1,5 +1,6 @@
 class Animator {
-  constructor(steps) {
+  constructor(contentDiv, steps) {
+    this._contentDiv = contentDiv;
     this.steps = steps;
     this.stepIndex = 0;
     this._undoCallbacks = [];  // contents are like: {stepIndex: 123, run: () => {...}}
@@ -45,7 +46,7 @@ class Animator {
           if (action.element.parentElement) {
             throw new Error("already created");
           }
-          document.getElementById('animation').appendChild(action.element);
+          this._contentDiv.appendChild(action.element);
           this._undoCallbacks.push({stepIndex: this.stepIndex, run: () => {
             action.element.parentElement.removeChild(action.element);
           }});
@@ -70,11 +71,11 @@ class Animator {
           if (action.y !== undefined) {
             this.set(action.element.style, 'top', `calc(350px + ${action.y} * var(--math-unit))`);
           }
-          if (action.dx !== undefined) {
+          if (action.dx) {
             const insideCalc = action.element.style.left.slice('calc('.length, -')'.length);
             this.set(action.element.style, 'left', `calc((${insideCalc}) + ${action.dx}*var(--math-unit))`);
           }
-          if (action.dy !== undefined) {
+          if (action.dy) {
             const insideCalc = action.element.style.top.slice('calc('.length, -')'.length);
             this.set(action.element.style, 'top', `calc((${insideCalc}) + ${action.dy}*var(--math-unit))`);
           }
@@ -96,6 +97,22 @@ class Animator {
     this.stepIndex++;
   }
 };
+
+function showAnimation(elementId, steps) {
+  const div = document.getElementById(elementId);
+  div.innerHTML = '<div class="content"></div><button>Previous</button><button>Next</button>';
+  const [contentDiv, prevButton, nextButton] = div.children;
+  const animator = new Animator(contentDiv, steps);
+
+  function updateButtons() {
+    prevButton.disabled = (animator.stepIndex === 1);
+    nextButton.disabled = (animator.stepIndex === animator.steps.length);
+  }
+
+  prevButton.addEventListener('click', () => { animator.showPrev(); updateButtons(); });
+  nextButton.addEventListener('click', () => { animator.showNext(); updateButtons(); });
+  updateButtons();
+}
 
 function sumOfIntegersUpTo(n) {
   return n*(n+1)/2;
@@ -133,48 +150,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const topCopy  = range(n*n).map(i => ({x: i%n, y: Math.floor(i/n), element: document.createElement('div')}));
   const leftCopy = range(n*n).map(i => ({x: i%n, y: Math.floor(i/n), element: document.createElement('div')}));
 
-  const animator = new Animator([
+  showAnimation('animation', [
     differentSizeSquares.map((squareList, size) => squareList.map(({x, y, initialX, initialY, element}) => ({
       type: 'create',
-      textContent: 1,
-      classes: 'square',
+      element,
       x: initialX,
       y: initialY,
-      element,
+      textContent: 1,
+      classes: 'square',
     }))).flat(),
+
     differentSizeSquares.map(squareList => squareList.map(({x, y, element}) => ({
-      type: 'config', x, y, element,
+      type: 'config',
+      element, x, y,
       textContent: (squareList.length === n*n) ? (n - Math.max(x, y)) : undefined,
     }))).flat(),
+
     (
-      differentSizeSquares.filter(squareList => squareList.length !== n*n).flat().map(({element}) => ({
-        type: 'delete',
-        element,
-      }))
+      differentSizeSquares
+      .filter(squareList => squareList.length !== n*n)
+      .flat()
+      .map(({element}) => ({type: 'delete', element}))
     ).concat(
       topCopy.concat(leftCopy).map(({x, y, element}) => ({
         type: 'create',
+        element, x, y,
         textContent: n - Math.max(x, y),
         classes: 'square',
         zIndex: -1,
-        element, x, y,
       }))
     ).concat(
       topCopy.map(({element}) => ({type: 'config', element, classes: 'color1'}))
     ).concat(
       leftCopy.map(({element}) => ({type: 'config', element, classes: 'color2'}))
     ),
+
     (
       topCopy.map(({x, y, element}) => ({type: 'config', element, x, y: -y-1}))
     ).concat(
       leftCopy.map(({x, y, element}) => ({type: 'config', element, x: -x-1, y}))
     ),
+
     basicSquares.map(({x, y, element}) => ({
       type: 'config',
       dx: (x < y) ? -n : (x > y) ? n : 0,
       dy: (x < y) ? n : (x > y) ? -n : 0,
       element,
     })),
+
     basicSquares.map(({x, y, element}) => ({
       type: 'config',
       dx: (x > y) ? -y : 0,
@@ -182,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
       zIndex: 1,
       element,
     })),
+
     ...range(n-1).map(movingRowOrColumn =>
       basicSquares
       .filter(({x, y}) => x !== y && Math.min(x, y) === movingRowOrColumn)
@@ -189,27 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'config',
         element,
         classes: 'merged',
-        ...((x <= y) ? {} : {
-          dx: -n-1,
-          textContent: n-x+y+1,
-        }),
-        ...((x >= y) ? {} : {
-          dy: -n-1,
-          textContent: n-y+x+1,
-        }),
+        textContent: n - Math.abs(x-y) + 1,
+        ...(x<y ? {dy: -n-1} : {dx: -n-1}),
       }))
     ),
   ]);
-
-  const prevButton = document.getElementById('prev-button');
-  const nextButton = document.getElementById('next-button');
-
-  function updateButtons() {
-    prevButton.disabled = (animator.stepIndex === 1);
-    nextButton.disabled = (animator.stepIndex === animator.steps.length);
-  }
-
-  prevButton.addEventListener('click', () => { animator.showPrev(); updateButtons(); });
-  nextButton.addEventListener('click', () => { animator.showNext(); updateButtons(); });
-  updateButtons();
 });
