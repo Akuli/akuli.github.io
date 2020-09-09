@@ -5,7 +5,7 @@
 }
 
 .animation-content > div {
-    position: absolute;   /* needed for content's children to respect margin */
+    position: absolute;   /* respect .animation-content's margin */
 }
 
 .animation-content > div > * {
