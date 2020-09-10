@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sums
+</title>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+          inlineMath: [ ['$','$'] ],
+          displayMath: [ ['$$','$$'] ],
+        },
+        "HTML-CSS": { availableFonts: ["TeX"] },
+      });
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Cabin|Quicksand" rel="stylesheet">
+
+<link rel="stylesheet" href="animation.css">
+
+        <script src="animator.js"></script>
+        </head>
+<body>
+
+$$
+\begin{align}
+(1 + 2 + 3 + \dots + n)^2
+&= (1 + 2 + 3 + \dots + n)(1 + 2 + 3 + \dots + n) \\
+&\\
+&= \quad 1(1 + 2 + 3 + \dots + n) \\
+&\quad+ 2(1 + 2 + 3 + \dots + n) \\
+&\quad+ 3(1 + 2 + 3 + \dots + n) \\
+&\quad\quad\vdots \\
+&\quad+ n(1 + 2 + 3 + \dots + n) \\
+&\\
+&= \quad 1 \cdot 1 + 1 \cdot 2 + 1 \cdot 3 + \dots + 1 \cdot n \\
+&\quad+ 2 \cdot 1 + 2 \cdot 2 + 2 \cdot 3 + \dots + 2 \cdot n \\
+&\quad+ 3 \cdot 1 + 3 \cdot 2 + 3 \cdot 3 + \dots + 3 \cdot n \\
+&\quad\quad\vdots \\
+&\quad+ n \cdot 1 + n \cdot 2 + n \cdot 3 + \dots + n \cdot n.
+\end{align}
+$$
+
+    <div id="anim-sum-of-cubes"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            function run() {
+                window.animator.run("anim-sum-of-cubes", ...arguments);
+            }
+                function mulString(a, b) { return `${a}⋅${b}`; }
+
+    const n = 7;
+    const mulTable = Array(n*n)
+        .fill()
+        .map((junk, i) => ({
+            x: (i % n),
+            y: Math.floor(i / n),
+            element: document.createElement('div'),
+        }))
+        .map(info => ({...info, partNumber: Math.max(info.x, info.y)}));
+
+    run([
+        mulTable.map(({x, y, element, partNumber}) => ({
+            type: 'create',
+            x, y, element,
+            classes: 'square',
+            textContent: mulString(y+1, x+1),
+            css: {zIndex: (x === partNumber) ? 1 : 2},  // left row in front of right row when merging
+        })),
+
+        mulTable.map(({partNumber, element}) => ({
+            type: 'config',
+            element,
+            dx: 1.5*partNumber,
+            dy: 0*partNumber,
+        })),
+
+        mulTable.map(({partNumber, element, x}) => ({
+            type: 'config',
+            element,
+            dx: (x < partNumber)*(partNumber-x-1),
+            dy: (x < partNumber)*(-x-1),
+        })),
+
+        ...Array(n)
+            .fill()
+            .map((junk, i) => i)
+            .filter(partNumber => partNumber !== 0)
+            .map(partNumber =>
+                mulTable
+                .filter(item => item.partNumber === partNumber)
+                .filter(({x}) => x < partNumber)   // exclude right row
+                .reverse()
+                .map(({element}) => ({
+                    type: 'config',
+                    element,
+                    dx: 1,
+                    textContent: mulString(partNumber+1, partNumber+1),
+                    classes: 'merged',
+                }))
+            ),
+    ]);
+
+        });
+    </script>
+</body>
+</html>
