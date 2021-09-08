@@ -113,16 +113,17 @@ Connection: keep-alive
 
 ## HTTP responses: what websites send to your browser
 
-When you go to `http://localhost:12345` with ou Python script running, the browser displays an error.
-With netcat, the browser waits until you exit netcat (with Ctrl+D or Ctrl+C, and then displays an error.
+When you go to `http://localhost:12345` with our Python script running, the browser displays an error.
+With netcat, the browser waits until you exit netcat (with Ctrl+D or Ctrl+C), and then displays an error.
 This is because our server (netcat or Python script) doesn't send a response to the browser
 that would tell what the browser should display.
 
 To get an idea of what responses look like, let's do a request to `http://example.com/`.
-We will use port 80 instead of a custom port
 It is a very simple website that just displays a message when you visit it with a browser.
 Let's construct the HTTP request:
-- A `GET` request to `http://example.com/`, so the first line is `GET / HTTP/1.1`
+- We will connect to port 80, because there is no custom port specified in `http://example.com/`.
+    Using a custom port would mean that the URL looks like `http://example.com:12345/` instead.
+- We want to send a `GET` request to `http://example.com/`, so the first line is `GET / HTTP/1.1`
 - We need to send one header, `Host: example.com`. We will soon talk about what happens if you send no headers.
 - We will send an empty body, as is typical in `GET` requests.
 
@@ -244,7 +245,7 @@ To see more examples of HTTP responses, you can try a few different things with 
 
 Now that we know what responses look like, we can create one ourselves.
 If you have netcat, run `nc -lp 12345` and then go to `http://localhost:12345` with the browser.
-Once connected, type this response to the terminal (remember the trailing blank line).
+Then type this response to the terminal, after the request that was printed.
 When done, close the TCP connection by pressing Ctrl+C or Ctrl+D.
 
 ```
@@ -262,7 +263,7 @@ sock.send(b'lol')
 sock.close()
 ```
 
-Either way, you should now see `lol` in the browser.
+Either way, you should now see the body `lol` displayed in the browser.
 
 
 ## HTTPS = HTTP + SSL + different default port
