@@ -36,14 +36,15 @@ you can use the following Python program instead.
 It does the same thing (or at least it is close enough for our purposes).
 
 ```python
+# Very dumb HTTP server
 import socket
 
 server_socket = socket.socket()
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
 server_socket.bind(('localhost', 12345))
 server_socket.listen(1)
-client_connection = server_socket.accept()[0]
-print(client_connection.recv(10000))
+sock = server_socket.accept()[0]
+print(sock.recv(10000).decode('utf-8'))
 ```
 
 With the Python program or the netcat command running, go to `http://localhost:12345` with your web browser.
@@ -112,10 +113,10 @@ Connection: keep-alive
 
 ## HTTP responses: what websites send to your browser
 
-When you go to `http://localhost:12345` with our dumb server (Python script or netcat command)
-running, the browser hangs.
-This is because the server doesn't send a response to the browser,
-telling what it should display on the page.
+When you go to `http://localhost:12345` with ou Python script running, the browser displays an error.
+With netcat, the browser waits until you exit netcat (with Ctrl+D or Ctrl+C, and then displays an error.
+This is because our server (netcat or Python script) doesn't send a response to the browser
+that would tell what the browser should display.
 
 To get an idea of what responses look like, let's do a request to `http://example.com/`.
 We will use port 80 instead of a custom port
@@ -139,6 +140,7 @@ because the body is empty.
 If you don't have netcat, use this Python script instead:
 
 ```python
+# Very dumb HTTP client
 import socket
 
 sock = socket.socket()
@@ -251,9 +253,9 @@ HTTP/1.1 200 OK
 lol
 ```
 
-If you don't have netcat, add this new code to the end of the Python script:
+If you don't have netcat, add these lines to the end of our Python HTTP client script:
 
-```
+```python
 sock.send(b'HTTP/1.1 200 OK\r\n')
 sock.send(b'\r\n')
 sock.send(b'lol')
