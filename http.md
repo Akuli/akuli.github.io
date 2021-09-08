@@ -240,6 +240,28 @@ To see more examples of HTTP responses, you can try a few different things with 
     (Most sites sent a different body in this case, but example.com doesn't for whatever reason.
     The status code is not same as for `GET / HTTP/1.1` though.)
 
+Now that we know what responses look like, we can create one ourselves.
+If you have netcat, run `nc -lp 12345` and then go to `http://localhost:12345` with the browser.
+Once connected, type this response to the terminal (remember the trailing blank line).
+When done, close the TCP connection by pressing Ctrl+C or Ctrl+D.
+
+```
+HTTP/1.1 200 OK
+
+lol
+```
+
+If you don't have netcat, add this new code to the end of the Python script:
+
+```
+sock.send(b'HTTP/1.1 200 OK\r\n')
+sock.send(b'\r\n')
+sock.send(b'lol')
+sock.close()
+```
+
+Either way, you should now see `lol` in the browser.
+
 
 ## HTTPS = HTTP + SSL + different default port
 
