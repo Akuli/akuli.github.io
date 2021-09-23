@@ -273,7 +273,42 @@ TODO
 
 ## HTTP POST requests: what the "Submit" button does
 
-TODO
+TODO: explain
+
+TODO: how to do this with netcat
+
+```python
+import socket
+
+form_html = b"""
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <form method="post">
+      <input type="text" name="foo" />
+      <input type="submit" />
+    </form>
+  </body>
+</html>
+"""
+
+while True:
+    server_socket = socket.socket()
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+    server_socket.bind(('localhost', 12345))
+    server_socket.listen(1)
+    client_connection = server_socket.accept()[0]
+    request = client_connection.recv(10000).decode("utf-8")
+    print(request)
+
+    if request.startswith("GET"):
+        client_connection.send(b"HTTP/1.1 200 OK\r\n")
+        client_connection.send(b"Host: localhost\r\n")
+        client_connection.send(f"Content-Length: {len(form_html)}\r\n".encode("utf-8"))
+        client_connection.send(b"\r\n")
+        client_connection.send(form_html)
+```
 
 
 ## User-Agent header
