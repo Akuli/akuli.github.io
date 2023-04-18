@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+#message-area {
+  height: 3em;
+  font-size: 3em;
+}
+#message-area > span {
+  color: transparent;  /* usually overwritten by animation */
+  animation-duration: 1s;
+  position: absolute;  /* stack them */
+}
+#message-area > .correct {
+  animation-name: greenFadeOut;
+}
+#message-area > .wrong {
+  animation-name: redFadeOut;
+}
+
+@keyframes greenFadeOut {
+  from { color: green; }
+  to { color: transparent; }
+}
+@keyframes redFadeOut {
+  from { color: red; }
+  to { color: transparent; }
+}
+</style>
+
+<script>
+class Player {
+  constructor() {
+    this._audioCtx = new window.AudioContext();
+
+    // A plain oscillator is really loud. Let's adjust the volume.
+    const gainNode = this._audioCtx.createGain();
+    gainNode.gain.value = 0.04;
+    gainNode.connect(this._audioCtx.destination);
+
+    this._oscillator1 = this._audioCtx.createOscillator();
+    this._oscillator2 = this._audioCtx.createOscillator();
+    this._oscillator1.connect(gainNode);
+    this._oscillator2.connect(gainNode);
+    this._oscillator1.start();
+    this._oscillator2.start();
+
+    this._frequencies = [];
+    this._alternating = false;
+    this._timeoutId = null;
+  }
+
+  setFrequencies(freqs) {
+    this._frequencies = freqs;
+    this._restartPlaying();
+  }
+
+  setAlternating(isAlternating) {
+    this._alternating = isAlternating;
+    this._restartPlaying();
+  }
+
+  _restartPlaying() {
+    if (this._timeoutId !== null) {
+      clearInterval(this._timeoutId);
+      this._timeoutId = null;
+    }
+
+    if (this._frequencies.length === 0) {
+      // Silence both oscillators
+      this._oscillator1.frequency.setValueAtTime(0, this._audioCtx.currentTime);
+      this._oscillator2.frequency.setValueAtTime(0, this._audioCtx.currentTime);
+    } else if (this._alternating) {
+      // Silence oscillator 2 since we only need one
+      this._oscillator2.frequency.setValueAtTime(0, this._audioCtx.currentTime);
+
+      const playNext = () => {
+        const f = this._frequencies.shift();
+        this._frequencies.push(f);
+        this._oscillator1.frequency.setValueAtTime(f, this._audioCtx.currentTime);
+      };
+      playNext();
+      this._timeoutId = setInterval(playNext, 300);
+    } else {
+      if (this._frequencies.length !== 2) {
+        throw new Error(`must be 2 simultaneous frequencies, got ${this._frequencies}`);
+      }
+      this._oscillator1.frequency.setValueAtTime(this._frequencies[0], this._audioCtx.currentTime);
+      this._oscillator2.frequency.setValueAtTime(this._frequencies[1], this._audioCtx.currentTime);
+    }
+  }
+}
+
+let player = null;
+let correctDistance = null;
+
+function updateMode() {
+  if (player !== null) {
+    player.setAlternating(document.getElementById("mode-selector-alternate").checked);
+  }
+}
+
+function showMessage(cssClass, text) {
+  const span = document.createElement("span");
+  span.textContent = text + "\n";
+  span.classList.add(cssClass);
+  document.getElementById("message-area").appendChild(span);
+  setTimeout(() => span.remove(), 10000);  // garbage collection :)
+}
+
+function playRandomDistance() {
+  correctDistance = 1 + Math.floor(Math.random() * (+document.getElementById("max-distance").value));
+  const lowFreq = 200 + 200*Math.random();
+  const highFreq = lowFreq * Math.pow(2, correctDistance/12);
+  player.setFrequencies([lowFreq, highFreq]);
+}
+
+function start() {
+  document.getElementById("show-before-start").remove();
+  document.getElementById("show-after-start").style.display = null;
+  player = new Player();
+  updateMode();
+  playRandomDistance();
+}
+
+function onKey(event) {
+  if (correctDistance === null) {
+    // not started yet
+    return;
+  }
+
+  let guess;
+  if (/[0-9]+/g.test(event.key)) {
+    guess = +event.key;
+  } else if (event.key.toLowerCase() === 'q') {
+    guess = 10;
+  } else if (event.key.toLowerCase() === 'w') {
+    guess = 11;
+  } else if (event.key.toLowerCase() === 'e') {
+    guess = 12;
+  } else {
+    // unknown key
+    console.log(event.key);
+  }
+
+  if (guess === correctDistance) {
+    showMessage("correct", "Correct!");
+    playRandomDistance();
+  } else {
+    showMessage("wrong", "Wrong...");
+  }
+}
+
+function syncMaxDistance() {
+  const value = document.getElementById("max-distance").value;
+  document.getElementById("max-distance-indicator").value = value;
+
+  document.getElementById("large-distance-instructions").innerHTML = "";
+  if (value >= 10) {
+    document.getElementById("large-distance-instructions").innerHTML += "Press Q for 10.<br>";
+  }
+  if (value >= 11) {
+    document.getElementById("large-distance-instructions").innerHTML += "Press W for 11.<br>";
+  }
+  if (value >= 12) {
+    document.getElementById("large-distance-instructions").innerHTML += "Press E for 12.<br>";
+  }
+
+  if (correctDistance > value) {
+    // We are currently playing something too hard.
+    // this can happen if difficulty is decreased
+    playRandomDistance();
+  }
+}
+
+function loadSettings() {
+  if (localStorage.itrainerMaxDist !== undefined) {
+    document.getElementById("max-distance").value = +localStorage.itrainerMaxDist;
+    syncMaxDistance();
+  }
+
+  if (localStorage.itrainerMode === "alternate") {
+    document.getElementById("mode-selector-alternate").checked = true;
+  }
+}
+
+function saveSettings() {
+  localStorage.itrainerMaxDist = document.getElementById("max-distance").value;
+  if (document.getElementById("mode-selector-alternate").checked) {
+    localStorage.itrainerMode = "alternate";
+  } else {
+    localStorage.itrainerMode = "simultaneous";
+  }
+  console.log(localStorage);
+}
+</script>
+<meta charset="utf-8" />
+<title>Interval trainer</title>
+</head>
+
+<body onload="loadSettings()" onkeydown="onKey(event)">
+
+<h1>Interval trainer</h1>
+
+<div id="show-before-start">
+  <p>
+    This page teaches you to recognize intervals by ear.
+  </p>
+
+  <p>
+    You will hear two notes.
+    Press a number key depending on how many semitones away from each other they are.
+    For example, if the two notes are 3 semitones apart, press 3.
+  </p>
+
+  <button style="font-size:3em; padding:0.2em;" onclick="start()">Start</button>
+</div>
+
+<div id="show-after-start" style="display:none">
+  <p>
+    How many semitones is this? Press a key.
+  </p>
+
+  <div id="message-area"></div>
+
+  <h4>Settings</h4>
+
+  <input onchange="updateMode(); saveSettings();" type="radio" id="mode-selector-simultaneous" name="mode-selector" checked />
+  <label for="mode-selector-simultaneous">Play two notes simultaneously</label><br>
+  <input onchange="updateMode(); saveSettings();" type="radio" id="mode-selector-alternate" name="mode-selector" />
+  <label for="mode-selector-alternate">Alternate between the two notes</label><br>
+
+  <p>
+    The slider below is basically a difficulty slider.
+    Increase it as you learn until it is set to max.
+  </p>
+
+  <label for="max-distance">Maximum distance between the notes (in semitones):</label>
+  <!-- https://stackoverflow.com/a/18936328 -->
+  <input id="max-distance" value="4" type="range" min="2" max="12" oninput="syncMaxDistance(); saveSettings();" />
+  <output id="max-distance-indicator">4</output>
+  <p id="large-distance-instructions"></p>
+</div>
+
+</body>
+</html>
