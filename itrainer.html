@@ -36,7 +36,7 @@ class Player {
 
     // A plain oscillator is really loud. Let's adjust the volume.
     const gainNode = this._audioCtx.createGain();
-    gainNode.gain.value = 0.04;
+    gainNode.gain.value = 0.1;
     gainNode.connect(this._audioCtx.destination);
 
     this._oscillator1 = this._audioCtx.createOscillator();
@@ -111,8 +111,9 @@ function showMessage(cssClass, text) {
 
 function playRandomDistance() {
   correctDistance = 1 + Math.floor(Math.random() * (+document.getElementById("max-distance").value));
-  const lowFreq = 200 + 200*Math.random();
+  const lowFreq = 350 * Math.pow(2, Math.random());
   const highFreq = lowFreq * Math.pow(2, correctDistance/12);
+  console.log(lowFreq, highFreq);
   player.setFrequencies([lowFreq, highFreq]);
 }
 
@@ -131,7 +132,7 @@ function onKey(event) {
   }
 
   let guess;
-  if (/[0-9]+/g.test(event.key)) {
+  if (/[1-9]/g.test(event.key)) {
     guess = +event.key;
   } else if (event.key.toLowerCase() === 'q') {
     guess = 10;
@@ -141,7 +142,7 @@ function onKey(event) {
     guess = 12;
   } else {
     // unknown key
-    console.log(event.key);
+    return;
   }
 
   if (guess === correctDistance) {
