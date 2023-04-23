@@ -181,17 +181,17 @@ function loadSettings() {
     syncMaxDistance();
   }
 
-  if (localStorage.itrainerMode === "alternate") {
-    document.getElementById("mode-selector-alternate").checked = true;
+  if (localStorage.itrainerMode2 === "simultaneous") {
+    document.getElementById("mode-selector-simultaneous").checked = true;
   }
 }
 
 function saveSettings() {
   localStorage.itrainerMaxDist = document.getElementById("max-distance").value;
   if (document.getElementById("mode-selector-alternate").checked) {
-    localStorage.itrainerMode = "alternate";
+    localStorage.itrainerMode2 = "alternate";
   } else {
-    localStorage.itrainerMode = "simultaneous";
+    localStorage.itrainerMode2 = "simultaneous";
   }
   console.log(localStorage);
 }
@@ -227,10 +227,10 @@ function saveSettings() {
 
   <h4>Settings</h4>
 
-  <input onchange="updateMode(); saveSettings();" type="radio" id="mode-selector-simultaneous" name="mode-selector" checked />
-  <label for="mode-selector-simultaneous">Play two notes simultaneously</label><br>
-  <input onchange="updateMode(); saveSettings();" type="radio" id="mode-selector-alternate" name="mode-selector" />
+  <input onchange="updateMode(); saveSettings();" type="radio" id="mode-selector-alternate" name="mode-selector" checked />
   <label for="mode-selector-alternate">Alternate between the two notes</label><br>
+  <input onchange="updateMode(); saveSettings();" type="radio" id="mode-selector-simultaneous" name="mode-selector" />
+  <label for="mode-selector-simultaneous">Play two notes simultaneously</label><br>
 
   <p>
     The slider below is basically a difficulty slider.
