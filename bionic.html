@@ -88,10 +88,13 @@
       div.innerHTML = "";
 
       let prevBoldEnd = 0;
+      let everyThird = 0;
       for (const matchObj of text.matchAll(/\b\w{1,3}/g)) {
-        addText(text.slice(prevBoldEnd, matchObj.index), false);
-        addText(matchObj[0], true);
-        prevBoldEnd = matchObj.index + matchObj[0].length;
+        if (everyThird++ % 3 == 0) {
+          addText(text.slice(prevBoldEnd, matchObj.index), false);
+          addText(matchObj[0], true);
+          prevBoldEnd = matchObj.index + matchObj[0].length;
+        }
       }
       addText(text.slice(prevBoldEnd), false);
     }
